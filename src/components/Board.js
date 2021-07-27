@@ -16,7 +16,7 @@ const Board = () => {
 
 		const snakeHead = snakeCells[0];
 		// console.log("snakeHead:", snakeHead)
-		
+
 		// starting place
 		dummy[snakeHead[0]][snakeHead[1]] = 1;
 
@@ -32,7 +32,7 @@ const Board = () => {
 			setSnakeCells((cells) => {
 				let head = [...cells[cells.length - 1]];
 				head[1] += 1;
-				console.log("head:", head);
+				// console.log("head:", head);
 				return [...cells, head];
 			});
 		}
@@ -41,16 +41,17 @@ const Board = () => {
 			setSnakeCells((cells) => {
 				let head = [...cells[cells.length - 1]];
 				head[1] -= 1;
-				console.log("head:", head);
+				// console.log("head:", head);
 				return [...cells, head];
 			});
 		}
 		if (e.key === "w") {
 			console.log(e.key);
 			setSnakeCells((cells) => {
+				// let head = cells[cells.length - 1]
 				let head = [...cells[cells.length - 1]];
 				head[0] -= 1;
-				console.log("head:", head);
+				// console.log("head:", head);
 				// console.log("grid[0]:", grid[0])
 				return [...cells, head];
 			});
@@ -60,7 +61,7 @@ const Board = () => {
 			setSnakeCells((cells) => {
 				let head = [...cells[cells.length - 1]];
 				head[0] += 1;
-				console.log("head:", head);
+				// console.log("head:", head);
 				// console.log("grid[0]:", grid[0])
 				return [...cells, head];
 			});
@@ -75,20 +76,18 @@ const Board = () => {
 	}, []);
 
 	useEffect(() => {
-		console.log("useEffect setGrid");
+		// console.log("useEffect setGrid");
 		setGrid((grid) => {
 			console.log("snakeCells:", snakeCells)
 			for (let snakeCell of snakeCells) {
-				// console.log("grid[snakeCell[1]][snakeCell[0]]:", grid[snakeCell[1]][snakeCell[0]])
-				// console.log("grid[0]:", grid[0])
 				grid[snakeCell[0]][snakeCell[1]] = 1;
 			}
-			console.log(grid[0]);
-			return grid;
+			// console.log(grid[0]);
+			return [...grid];
 		});
 	}, [snakeCells]);
 
-	console.log("Final Return");
+	// console.log("Final Return");
 	return (
 		<div>
 			<p>Snake Board</p>
