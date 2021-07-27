@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 const Board = () => {
 	const [grid, setGrid] = useState([]);
-	const [snakeCells, setSnakeCells] = useState([[10, 10]]);
+	const [snakeCells, setSnakeCells] = useState([[0, 0]]);
 
 	useEffect(() => {
 		let dummy = [];
@@ -14,63 +14,81 @@ const Board = () => {
 			dummy.push(row);
 		}
 
-		// const snakeHead = snakeCells[0]
-		// dummy[snakeHead[0]][snakeHead[1]] = 1
+		const snakeHead = snakeCells[0];
+		// console.log("snakeHead:", snakeHead)
+		
+		// starting place
+		dummy[snakeHead[0]][snakeHead[1]] = 1;
+
+		// dummy[0][0] = 1
+		// console.log("dummy[0]:", dummy[0])
 		setGrid(dummy);
 	}, []);
 
+	const onKeyDown = (e) => {
+		// console.log("Activated Event Listener: KeyDown")
+		if (e.key === "d") {
+			console.log(e.key);
+			setSnakeCells((cells) => {
+				let head = [...cells[cells.length - 1]];
+				head[1] += 1;
+				console.log("head:", head);
+				return [...cells, head];
+			});
+		}
+		if (e.key === "a") {
+			console.log(e.key);
+			setSnakeCells((cells) => {
+				let head = [...cells[cells.length - 1]];
+				head[1] -= 1;
+				console.log("head:", head);
+				return [...cells, head];
+			});
+		}
+		if (e.key === "w") {
+			console.log(e.key);
+			setSnakeCells((cells) => {
+				let head = [...cells[cells.length - 1]];
+				head[0] -= 1;
+				console.log("head:", head);
+				// console.log("grid[0]:", grid[0])
+				return [...cells, head];
+			});
+		}
+		if (e.key === "s") {
+			console.log(e.key);
+			setSnakeCells((cells) => {
+				let head = [...cells[cells.length - 1]];
+				head[0] += 1;
+				console.log("head:", head);
+				// console.log("grid[0]:", grid[0])
+				return [...cells, head];
+			});
+		}
+	};
+
 	useEffect(() => {
-		window.addEventListener("keydown", (e) => {
-			if (e.key === "d") {
-				console.log(e.key);
-				setSnakeCells((cells) => {
-					let head = cells[cells.length - 1];
-					head[1] += 1;
-					console.log("head:", head);
-					return [...cells, head];
-				});
-			}
-			if (e.key === "a") {
-				console.log(e.key);
-				setSnakeCells((cells) => {
-					let head = cells[cells.length - 1];
-					head[1] -= 1;
-					console.log("head:", head);
-					return [...cells, head];
-				});
-			}
-			if (e.key === "w") {
-				console.log(e.key);
-				setSnakeCells((cells) => {
-					let head = cells[cells.length - 1];
-					head[0] -= 1;
-					console.log("head:", head);
-					return [...cells, head];
-				});
-			}
-			if (e.key === "s") {
-				console.log(e.key);
-				setSnakeCells((cells) => {
-					let head = cells[cells.length - 1];
-					head[0] += 1;
-					console.log("head:", head);
-					return [...cells, head];
-				});
-			}
-		});
-		return () =>
-			window.removeEventListener("keydown", (e) => console.log(e.key));
+		window.addEventListener("keydown", onKeyDown);
+		return () => {
+			window.removeEventListener("keydown", onKeyDown);
+		};
 	}, []);
 
 	useEffect(() => {
+		console.log("useEffect setGrid");
 		setGrid((grid) => {
+			console.log("snakeCells:", snakeCells)
 			for (let snakeCell of snakeCells) {
-				grid[snakeCell[1]][snakeCell[0]] = 1;
+				// console.log("grid[snakeCell[1]][snakeCell[0]]:", grid[snakeCell[1]][snakeCell[0]])
+				// console.log("grid[0]:", grid[0])
+				grid[snakeCell[0]][snakeCell[1]] = 1;
 			}
+			console.log(grid[0]);
 			return grid;
 		});
 	}, [snakeCells]);
 
+	console.log("Final Return");
 	return (
 		<div>
 			<p>Snake Board</p>
@@ -91,7 +109,7 @@ const Board = () => {
 											width: "10px",
 											height: "10px",
 											background:
-												grid[k][i] === 0
+												grid[i][k] === 0
 													? "blue"
 													: "red",
 											borderStyle: "solid",
