@@ -1,6 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 
 const Board = () => {
+
+	const gridWidth = 20
+	const gridHeight = 20
+
+	const pixelWidth = 10
+	const pixelHeight = 10
+
+	const size = gridWidth*pixelWidth
+
+
 	const [grid, setGrid] = useState([]);
 
 	// starting place
@@ -8,9 +18,9 @@ const Board = () => {
 
 	useEffect(() => {
 		let dummy = [];
-		for (let i = 0; i < 50; i++) {
+		for (let i = 0; i < gridWidth; i++) {
 			let row = [];
-			for (let k = 0; k < 50; k++) {
+			for (let k = 0; k < gridHeight; k++) {
 				row.push(0);
 			}
 			dummy.push(row);
@@ -21,12 +31,32 @@ const Board = () => {
 		setGrid(dummy);
 	}, []);
 
+	// detecting out of bounds
+	const detectOutOfBounds = (position) => {
+		let row = position[0];
+		let col = position[1];
+		console.log("position:", position)
+		console.log("grid:", grid)
+
+		if (row < 0 || row > gridHeight-1) {
+			console.log("Out of Bounds ROW axis");
+			return;
+		}
+
+		if (col < 0 || col > gridWidth-1) {
+			console.log("Out of Bounds COL axis");
+			return;
+		}
+	};
+
+	// to track keyboard input
 	const onKeyDown = (e) => {
 		if (e.key === "d") {
 			console.log(e.key);
 			setSnakeCells((cells) => {
 				let head = [...cells[cells.length - 1]];
 				head[1] += 1;
+				detectOutOfBounds(head);
 				return [...cells, head];
 			});
 		}
@@ -35,6 +65,7 @@ const Board = () => {
 			setSnakeCells((cells) => {
 				let head = [...cells[cells.length - 1]];
 				head[1] -= 1;
+				detectOutOfBounds(head);
 				return [...cells, head];
 			});
 		}
@@ -43,6 +74,7 @@ const Board = () => {
 			setSnakeCells((cells) => {
 				let head = [...cells[cells.length - 1]];
 				head[0] -= 1;
+				detectOutOfBounds(head);
 				return [...cells, head];
 			});
 		}
@@ -51,6 +83,7 @@ const Board = () => {
 			setSnakeCells((cells) => {
 				let head = [...cells[cells.length - 1]];
 				head[0] += 1;
+				detectOutOfBounds(head);
 				return [...cells, head];
 			});
 		}
@@ -69,6 +102,7 @@ const Board = () => {
 			for (let snakeCell of snakeCells) {
 				grid[snakeCell[0]][snakeCell[1]] = 1;
 			}
+			console.log("grid:", grid)
 			return [...grid];
 		});
 	}, [snakeCells]);
@@ -77,7 +111,7 @@ const Board = () => {
 		<div>
 			<p>Snake Board</p>
 			<div
-				style={{ width: "500px", height: "500px", background: "green" }}
+				style={{ width: size, height: size, background: "green" }}
 			>
 				{grid.map((row, i) => {
 					return (
@@ -90,8 +124,8 @@ const Board = () => {
 									<div
 										key={k + "cell"}
 										style={{
-											width: "10px",
-											height: "10px",
+											width: pixelWidth,
+											height: pixelHeight,
 											background:
 												grid[i][k] === 0
 													? "blue"
