@@ -115,8 +115,6 @@ const Board = () => {
 				}
 			});
 		}
-
-
 	};
 
 	// to track keyboard input, if the window pops up, it would ignore it
@@ -126,10 +124,13 @@ const Board = () => {
 		console.log("Listening to KeyDown:", !isOutOfBound);
 		if (!isOutOfBound) {
 			window.addEventListener("keydown", onKeyDown);
-			return () => {
-				window.removeEventListener("keydown", onKeyDown);
-			};
+		} else {
+			window.removeEventListener("keydown", onKeyDown);
 		}
+
+		return () => {
+			window.removeEventListener("keydown", onKeyDown);
+		};
 	}, [isOutOfBound]);
 
 	// detects the changes of snakecells
@@ -166,9 +167,8 @@ const Board = () => {
 		}
 	}, [snakeCells]);
 
-	return isOutOfBound ? (
-		<RestartPopup setIsOutOfBound={setIsOutOfBound} />
-	) : (
+	if (isOutOfBound) return <RestartPopup setIsOutOfBound={setIsOutOfBound} />;
+	return (
 		<div className="center">
 			<p>Snake Board</p>
 			<div style={{ width: size, height: size, background: "red" }}>
