@@ -3,6 +3,9 @@ import RestartPopup from "./RestartPopup";
 import "./Board.css";
 
 const Board = () => {
+	const startRow = 0;
+	const startCol = 0;
+
 	const gridWidth = 5;
 	const gridHeight = 5;
 	const pixelWidth = 10;
@@ -11,7 +14,7 @@ const Board = () => {
 	const [grid, setGrid] = useState([]);
 
 	// starting place
-	const [snakeCells, setSnakeCells] = useState([[0, 0]]);
+	const [snakeCells, setSnakeCells] = useState([[startRow, startCol]]);
 	const [isOutOfBound, setIsOutOfBound] = useState(false);
 
 	const [isRestart, setIsRestart] = useState(false);
@@ -55,6 +58,65 @@ const Board = () => {
 				}
 			});
 		}
+
+		if (e.key === "s") {
+			console.log(e.key);
+			setSnakeCells((cells) => {
+				let head = [...cells[cells.length - 1]];
+
+				// detects out of bounds for the right side of the board
+				if (head[0] >= gridWidth - 1) {
+					console.log("head[0] >= gridWidth - 1");
+					setIsOutOfBound(true);
+					setIsRestart(true);
+					return [...cells];
+				} else {
+					head[0] += 1;
+					console.log("head:", head);
+					return [...cells, head];
+				}
+			});
+		}
+
+		if (e.key === "w") {
+			console.log(e.key);
+			setSnakeCells((cells) => {
+				let head = [...cells[cells.length - 1]];
+
+				// detects out of bounds for the right side of the board
+				if (head[0] <= 0) {
+					console.log("head[0] <= 0");
+					setIsOutOfBound(true);
+					setIsRestart(true);
+					return [...cells];
+				} else {
+					head[0] -= 1;
+					console.log("head:", head);
+					return [...cells, head];
+				}
+			});
+		}
+
+		if (e.key === "a") {
+			console.log(e.key);
+			setSnakeCells((cells) => {
+				let head = [...cells[cells.length - 1]];
+
+				// detects out of bounds for the right side of the board
+				if (head[1] <= 0) {
+					console.log("head[1] <= 0");
+					setIsOutOfBound(true);
+					setIsRestart(true);
+					return [...cells];
+				} else {
+					head[1] -= 1;
+					console.log("head:", head);
+					return [...cells, head];
+				}
+			});
+		}
+
+
 	};
 
 	// to track keyboard input, if the window pops up, it would ignore it
@@ -94,8 +156,9 @@ const Board = () => {
 					grid[snakeCell[0]][snakeCell[1]] = 0;
 				}
 				console.log("grid:", grid);
-				grid[0][0] = 1;
-				setSnakeCells([[0, 0]]);
+
+				grid[startRow][startCol] = 1;
+				setSnakeCells([[startRow, startCol]]);
 
 				return [...grid];
 			});
