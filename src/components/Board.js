@@ -1,21 +1,19 @@
 import { useEffect, useRef, useState } from "react";
+import RestartPopup from "./RestartPopup";
+import './Board.css'
 
 const Board = () => {
-
-	const gridWidth = 20
-	const gridHeight = 20
-
-	const pixelWidth = 10
-	const pixelHeight = 10
-
-	const size = gridWidth*pixelWidth
-
-
+	const gridWidth = 5;
+	const gridHeight = 5;
+	const pixelWidth = 10;
+	const pixelHeight = 10;
+	const size = gridWidth * pixelWidth;
 	const [grid, setGrid] = useState([]);
-
 	// starting place
 	const [snakeCells, setSnakeCells] = useState([[0, 0]]);
+	const [isOutOfBound, setIsOutOfBound] = useState(false);
 
+	// create the initial grid
 	useEffect(() => {
 		let dummy = [];
 		for (let i = 0; i < gridWidth; i++) {
@@ -32,32 +30,30 @@ const Board = () => {
 	}, []);
 
 	// detecting out of bounds
-	const detectOutOfBounds = (position) => {
-		let row = position[0];
-		let col = position[1];
-		console.log("position:", position)
-		console.log("grid:", grid)
+	// const detectOutOfBounds = (position) => {
+	// 	console.log("Out of Bound Detected");
+	// 	console.log("position:", position);
+	// 	setIsOutOfBound(true);
 
-		if (row < 0 || row > gridHeight-1) {
-			console.log("Out of Bounds ROW axis");
-			return;
-		}
+	// 	return;
+	// };
 
-		if (col < 0 || col > gridWidth-1) {
-			console.log("Out of Bounds COL axis");
-			return;
-		}
-	};
-
-	// to track keyboard input
+	// to assign actions to keyboard input
 	const onKeyDown = (e) => {
 		if (e.key === "d") {
 			console.log(e.key);
+
 			setSnakeCells((cells) => {
 				let head = [...cells[cells.length - 1]];
-				head[1] += 1;
-				detectOutOfBounds(head);
-				return [...cells, head];
+				if (head[1] >= gridWidth - 1) {
+					console.log("head[1] >= gridWidth-1");
+					setIsOutOfBound(true);
+					return [[0, 0]];
+				} else {
+					head[1] += 1;
+					console.log("head:", head);
+					return [...cells, head];
+				}
 			});
 		}
 		if (e.key === "a") {
@@ -65,7 +61,6 @@ const Board = () => {
 			setSnakeCells((cells) => {
 				let head = [...cells[cells.length - 1]];
 				head[1] -= 1;
-				detectOutOfBounds(head);
 				return [...cells, head];
 			});
 		}
@@ -73,8 +68,9 @@ const Board = () => {
 			console.log(e.key);
 			setSnakeCells((cells) => {
 				let head = [...cells[cells.length - 1]];
+				// detectOutOfBounds(head);
 				head[0] -= 1;
-				detectOutOfBounds(head);
+				// detectOutOfBounds(head);
 				return [...cells, head];
 			});
 		}
@@ -82,37 +78,50 @@ const Board = () => {
 			console.log(e.key);
 			setSnakeCells((cells) => {
 				let head = [...cells[cells.length - 1]];
+				// detectOutOfBounds(head);
 				head[0] += 1;
-				detectOutOfBounds(head);
+				// detectOutOfBounds(head);
 				return [...cells, head];
 			});
 		}
 	};
 
+	// to track keyboard input, if the window pops up, it would ignore it
+	// not sure if adding the dependency would affect other parts of the code
 	useEffect(() => {
-		window.addEventListener("keydown", onKeyDown);
-		return () => {
-			window.removeEventListener("keydown", onKeyDown);
-		};
-	}, []);
+		console.log("Listening to KeyDown:", isOutOfBound)
+		if (!isOutOfBound) {
+			window.addEventListener("keydown", onKeyDown);
+			return () => {
+				window.removeEventListener("keydown", onKeyDown);
+			};
+		}
+	}, [isOutOfBound]);
 
+	// detects the changes of snakecells
 	useEffect(() => {
-		setGrid((grid) => {
-			console.log("snakeCells:", snakeCells);
-			for (let snakeCell of snakeCells) {
-				grid[snakeCell[0]][snakeCell[1]] = 1;
-			}
-			console.log("grid:", grid)
-			return [...grid];
-		});
+		console.log("snakeCells:", snakeCells);
+		if (isOutOfBound === false) {
+			setGrid((grid) => {
+				console.log("snakeCells:", snakeCells);
+				for (let snakeCell of snakeCells) {
+					grid[snakeCell[0]][snakeCell[1]] = 1;
+				}
+				console.log("grid:", grid);
+				return [...grid];
+			});
+		}
 	}, [snakeCells]);
 
-	return (
-		<div>
+	return isOutOfBound ? (
+		<RestartPopup
+			isOutOfBound={isOutOfBound}
+			setIsOutOfBound={setIsOutOfBound}
+		></RestartPopup>
+	) : (
+		<div className="center">
 			<p>Snake Board</p>
-			<div
-				style={{ width: size, height: size, background: "green" }}
-			>
+			<div style={{ width: size, height: size, background: "red" }}>
 				{grid.map((row, i) => {
 					return (
 						<div
@@ -128,8 +137,8 @@ const Board = () => {
 											height: pixelHeight,
 											background:
 												grid[i][k] === 0
-													? "blue"
-													: "red",
+													? "white"
+													: "green",
 											borderStyle: "solid",
 											borderWidth: "thin",
 											borderColor: "black",
