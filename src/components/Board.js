@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import RestartPopup from "./RestartPopup";
-import './Board.css'
+import "./Board.css";
 
 const Board = () => {
 	const gridWidth = 5;
@@ -9,12 +9,17 @@ const Board = () => {
 	const pixelHeight = 10;
 	const size = gridWidth * pixelWidth;
 	const [grid, setGrid] = useState([]);
+
 	// starting place
 	const [snakeCells, setSnakeCells] = useState([[0, 0]]);
 	const [isOutOfBound, setIsOutOfBound] = useState(false);
 
-	// create the initial grid
+	const [isRestart, setIsRestart] = useState(false);
+
+	// create the initial grid. Only runs when the program first starts
 	useEffect(() => {
+		console.log("useEffect activated");
+		console.log("Initializing Grid");
 		let dummy = [];
 		for (let i = 0; i < gridWidth; i++) {
 			let row = [];
@@ -29,26 +34,20 @@ const Board = () => {
 		setGrid(dummy);
 	}, []);
 
-	// detecting out of bounds
-	// const detectOutOfBounds = (position) => {
-	// 	console.log("Out of Bound Detected");
-	// 	console.log("position:", position);
-	// 	setIsOutOfBound(true);
-
-	// 	return;
-	// };
-
 	// to assign actions to keyboard input
 	const onKeyDown = (e) => {
 		if (e.key === "d") {
 			console.log(e.key);
-
 			setSnakeCells((cells) => {
 				let head = [...cells[cells.length - 1]];
+
+				// detects out of bounds for the right side of the board
 				if (head[1] >= gridWidth - 1) {
 					console.log("head[1] >= gridWidth-1");
 					setIsOutOfBound(true);
-					return [[0, 0]];
+					setIsRestart(true);
+
+					return [...cells];
 				} else {
 					head[1] += 1;
 					console.log("head:", head);
@@ -56,40 +55,13 @@ const Board = () => {
 				}
 			});
 		}
-		if (e.key === "a") {
-			console.log(e.key);
-			setSnakeCells((cells) => {
-				let head = [...cells[cells.length - 1]];
-				head[1] -= 1;
-				return [...cells, head];
-			});
-		}
-		if (e.key === "w") {
-			console.log(e.key);
-			setSnakeCells((cells) => {
-				let head = [...cells[cells.length - 1]];
-				// detectOutOfBounds(head);
-				head[0] -= 1;
-				// detectOutOfBounds(head);
-				return [...cells, head];
-			});
-		}
-		if (e.key === "s") {
-			console.log(e.key);
-			setSnakeCells((cells) => {
-				let head = [...cells[cells.length - 1]];
-				// detectOutOfBounds(head);
-				head[0] += 1;
-				// detectOutOfBounds(head);
-				return [...cells, head];
-			});
-		}
 	};
 
 	// to track keyboard input, if the window pops up, it would ignore it
 	// not sure if adding the dependency would affect other parts of the code
 	useEffect(() => {
-		console.log("Listening to KeyDown:", isOutOfBound)
+		console.log("useEffect activated");
+		console.log("Listening to KeyDown:", !isOutOfBound);
 		if (!isOutOfBound) {
 			window.addEventListener("keydown", onKeyDown);
 			return () => {
@@ -100,8 +72,9 @@ const Board = () => {
 
 	// detects the changes of snakecells
 	useEffect(() => {
-		console.log("snakeCells:", snakeCells);
+		console.log("useEffect activated");
 		if (isOutOfBound === false) {
+			console.log("Able to keep moving");
 			setGrid((grid) => {
 				console.log("snakeCells:", snakeCells);
 				for (let snakeCell of snakeCells) {
@@ -111,13 +84,27 @@ const Board = () => {
 				return [...grid];
 			});
 		}
+
+		// reset the grid
+		if (isRestart === true) {
+			console.log("Out of Bounds... Restarting the Grid");
+			setGrid((grid) => {
+				console.log("snakeCells:", snakeCells);
+				for (let snakeCell of snakeCells) {
+					grid[snakeCell[0]][snakeCell[1]] = 0;
+				}
+				console.log("grid:", grid);
+				grid[0][0] = 1;
+				setSnakeCells([[0, 0]]);
+
+				return [...grid];
+			});
+			setIsRestart(false);
+		}
 	}, [snakeCells]);
 
 	return isOutOfBound ? (
-		<RestartPopup
-			isOutOfBound={isOutOfBound}
-			setIsOutOfBound={setIsOutOfBound}
-		></RestartPopup>
+		<RestartPopup setIsOutOfBound={setIsOutOfBound} />
 	) : (
 		<div className="center">
 			<p>Snake Board</p>
