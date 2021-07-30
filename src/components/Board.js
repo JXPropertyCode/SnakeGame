@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import RestartPopup from "./RestartPopup";
 import "./Board.css";
 
@@ -17,6 +17,8 @@ const Board = () => {
 	// the direction of the interval
 	const [direction, setDirection] = useState("");
 
+	const directionInterval = useRef(null);
+
 	// starting place
 	const [snakeCells, setSnakeCells] = useState([[startRow, startCol]]);
 	// const [isOutOfBound, setIsOutOfBound] = useState(false);
@@ -31,7 +33,7 @@ const Board = () => {
 			head[1] < 0 ||
 			head[1] >= gridWidth
 		) {
-			console.log("WENT OUT OF BOUNDS")
+			console.log("WENT OUT OF BOUNDS");
 			return true;
 		}
 
@@ -44,10 +46,35 @@ const Board = () => {
 	};
 
 	useEffect(() => {
+		console.log("useEffect activated");
+
 		// if direction is empty, it won't run further or else the snakeCells = [[0,0], [0,0]]
 		// if isGameOver, then it won't keep running any direction
 		if (isGameOver || direction === "") return;
 		const head = [...snakeCells[snakeCells.length - 1]];
+
+		console.log("direction:", direction);
+
+		// directionInterval.current = setInterval(() => {
+		// 	console.log("SetTimeOut")
+		// 	if (direction === "d") head[1] += 1;
+		// 	if (direction === "s") head[0] += 1;
+		// 	if (direction === "w") head[0] -= 1;
+		// 	if (direction === "a") head[1] -= 1;
+
+		// 	if (isOutOfBound(head, grid)) {
+		// 		// console.log("This is Out of Bounds");
+		// 		setIsGameOver(true);
+		// 		setSnakeCells([[startRow, startCol]])
+		// 		clearInterval(directionInterval.current);
+		// 	} else {
+		// 		// prevents the snakeCells from getting larger since it has not eaten anything
+		// 		setSnakeCells([head]);
+
+		// 		// setSnakeCells([...snakeCells, head]);
+		// 	}
+		// }, 1000);
+
 		if (direction === "d") head[1] += 1;
 		if (direction === "s") head[0] += 1;
 		if (direction === "w") head[0] -= 1;
@@ -56,10 +83,11 @@ const Board = () => {
 		if (isOutOfBound(head, grid)) {
 			// console.log("This is Out of Bounds");
 			setIsGameOver(true);
+			clearInterval(directionInterval.current);
 		} else {
 			// prevents the snakeCells from getting larger since it has not eaten anything
-			setSnakeCells([head])
-			
+			setSnakeCells([head]);
+
 			// setSnakeCells([...snakeCells, head]);
 		}
 	}, [direction]);
@@ -82,19 +110,28 @@ const Board = () => {
 		setGrid(dummy);
 	}, []);
 
+	const onKeyDown = (e) => {
+		console.log("Key Detected:", e.key);
+		return setDirection(e.key);
+	}
+
 	// to track keyboard input, if the window pops up, it would ignore it
 	// not sure if adding the dependency would affect other parts of the code
 	useEffect(() => {
 		console.log("useEffect activated");
 		console.log("Listening to KeyDown:", !isGameOver);
 		if (!isGameOver) {
-			window.addEventListener("keydown", (e) => setDirection(e.key));
+			console.log("Actively Listening to KeyDowns");
+			window.addEventListener("keydown", onKeyDown)
 		} else {
-			window.removeEventListener("keydown", (e) => setDirection(e.key));
+			console.log("NOT Listening to KeyDowns");
+			window.removeEventListener("keydown", onKeyDown);
+			clearInterval(directionInterval.current);
 		}
 
 		return () => {
-			window.removeEventListener("keydown", (e) => setDirection(e.key));
+			window.removeEventListener("keydown", onKeyDown);
+			clearInterval(directionInterval.current);
 		};
 	}, [isGameOver]);
 
@@ -102,18 +139,10 @@ const Board = () => {
 	useEffect(() => {
 		console.log("useEffect activated");
 		if (isGameOver === false) {
-			// console.log("Able to keep moving");
-			// setGrid((grid) => {
+			// console.log("isGameOver === false")
 			setGrid(() => {
-				// console.log("snakeCells:", snakeCells);
-				// for (let snakeCell of snakeCells) {
-				// 	grid[snakeCell[0]][snakeCell[1]] = 1;
-				// }
-				// console.log("grid:", grid);
-				// return [...grid];
-
-				let dummy = []
-
+				// creates a new grid
+				let dummy = [];
 				for (let i = 0; i < gridWidth; i++) {
 					let row = [];
 					for (let k = 0; k < gridHeight; k++) {
@@ -122,13 +151,14 @@ const Board = () => {
 					dummy.push(row);
 				}
 
+				// insert the snakeCells values
 				for (let snakeCell of snakeCells) {
 					dummy[snakeCell[0]][snakeCell[1]] = 1;
 				}
 
-				console.log(dummy)
-				return dummy
-
+				console.log(dummy);
+				// setGrid now becomes a new grid with updated snakeCells
+				return dummy;
 			});
 		}
 	}, [isGameOver, snakeCells]);
