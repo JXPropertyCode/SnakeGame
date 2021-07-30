@@ -31,6 +31,7 @@ const Board = () => {
 			head[1] < 0 ||
 			head[1] >= gridWidth
 		) {
+			console.log("WENT OUT OF BOUNDS")
 			return true;
 		}
 
@@ -53,18 +54,20 @@ const Board = () => {
 		if (direction === "a") head[1] -= 1;
 
 		if (isOutOfBound(head, grid)) {
-			console.log("This is Out of Bounds");
+			// console.log("This is Out of Bounds");
 			setIsGameOver(true);
 		} else {
 			// prevents the snakeCells from getting larger since it has not eaten anything
-			setSnakeCells([...snakeCells, head]);
+			setSnakeCells([head])
+			
+			// setSnakeCells([...snakeCells, head]);
 		}
 	}, [direction]);
 
 	// create the initial grid. Only runs when the program first starts
 	useEffect(() => {
-		console.log("useEffect activated");
-		console.log("Initializing Grid");
+		// console.log("useEffect activated");
+		// console.log("Initializing Grid");
 		let dummy = [];
 		for (let i = 0; i < gridWidth; i++) {
 			let row = [];
@@ -99,14 +102,33 @@ const Board = () => {
 	useEffect(() => {
 		console.log("useEffect activated");
 		if (isGameOver === false) {
-			console.log("Able to keep moving");
-			setGrid((grid) => {
-				console.log("snakeCells:", snakeCells);
-				for (let snakeCell of snakeCells) {
-					grid[snakeCell[0]][snakeCell[1]] = 1;
+			// console.log("Able to keep moving");
+			// setGrid((grid) => {
+			setGrid(() => {
+				// console.log("snakeCells:", snakeCells);
+				// for (let snakeCell of snakeCells) {
+				// 	grid[snakeCell[0]][snakeCell[1]] = 1;
+				// }
+				// console.log("grid:", grid);
+				// return [...grid];
+
+				let dummy = []
+
+				for (let i = 0; i < gridWidth; i++) {
+					let row = [];
+					for (let k = 0; k < gridHeight; k++) {
+						row.push(0);
+					}
+					dummy.push(row);
 				}
-				console.log("grid:", grid);
-				return [...grid];
+
+				for (let snakeCell of snakeCells) {
+					dummy[snakeCell[0]][snakeCell[1]] = 1;
+				}
+
+				console.log(dummy)
+				return dummy
+
 			});
 		}
 	}, [isGameOver, snakeCells]);
