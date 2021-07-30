@@ -3,6 +3,7 @@ import RestartPopup from "./RestartPopup";
 import "./Board.css";
 
 const Board = () => {
+	// starting place of the snake
 	const startRow = 0;
 	const startCol = 0;
 
@@ -13,6 +14,7 @@ const Board = () => {
 	const size = gridWidth * pixelWidth;
 	const [grid, setGrid] = useState([]);
 
+	// the direction of the interval
 	const [direction, setDirection] = useState("");
 
 	// starting place
@@ -20,13 +22,24 @@ const Board = () => {
 	// const [isOutOfBound, setIsOutOfBound] = useState(false);
 	const [isGameOver, setIsGameOver] = useState(false);
 
-	const isOutOfBound = (head) => {
-		return (
+	const isOutOfBound = (head, grid) => {
+		// console.log("IsOutOfBound Grid:", grid)
+
+		if (
 			head[0] < 0 ||
-			head[0] >= gridHeight||
+			head[0] >= gridHeight ||
 			head[1] < 0 ||
 			head[1] >= gridWidth
-		);
+		) {
+			return true;
+		}
+
+		if (grid[head[0]][head[1]] === 1) {
+			console.log("THE SNAKE JUST ATE ITSELF");
+			return true;
+		}
+
+		return false;
 	};
 
 	useEffect(() => {
@@ -39,12 +52,12 @@ const Board = () => {
 		if (direction === "w") head[0] -= 1;
 		if (direction === "a") head[1] -= 1;
 
-		if (isOutOfBound(head)) {
+		if (isOutOfBound(head, grid)) {
+			console.log("This is Out of Bounds");
 			setIsGameOver(true);
-			// errro
 		} else {
+			// prevents the snakeCells from getting larger since it has not eaten anything
 			setSnakeCells([...snakeCells, head]);
-			console.log("MAYBE snakeCells:", snakeCells)
 		}
 	}, [direction]);
 
@@ -82,7 +95,7 @@ const Board = () => {
 		};
 	}, [isGameOver]);
 
-	// // detects the changes of snakecells
+	// detects the changes of snakecells
 	useEffect(() => {
 		console.log("useEffect activated");
 		if (isGameOver === false) {
@@ -100,7 +113,7 @@ const Board = () => {
 
 	// resets the entire grid
 	const reset = () => {
-		console.log("Reset the Grid")
+		console.log("Reset the Grid");
 		let dummy = [];
 		for (let i = 0; i < gridWidth; i++) {
 			let row = [];
@@ -115,14 +128,14 @@ const Board = () => {
 		dummy[snakeHead[0]][snakeHead[1]] = 1;
 
 		// make the snakeCell reset
-		setSnakeCells([[startRow, startCol]])
+		setSnakeCells([[startRow, startCol]]);
 		// give the state grid a new grid
 		setGrid(dummy);
-		setIsGameOver(false)
-		setDirection("")
-	}
+		setIsGameOver(false);
+		setDirection("");
+	};
 
-	if (isGameOver) return <RestartPopup action={reset}/>
+	if (isGameOver) return <RestartPopup action={reset} />;
 
 	return (
 		<div className="center">
