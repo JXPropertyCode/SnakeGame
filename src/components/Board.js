@@ -30,7 +30,9 @@ const Board = () => {
 	};
 
 	useEffect(() => {
-		if (isGameOver) return;
+		// if direction is empty, it won't run further or else the snakeCells = [[0,0], [0,0]]
+		// if isGameOver, then it won't keep running any direction
+		if (isGameOver || direction === "") return;
 		const head = [...snakeCells[snakeCells.length - 1]];
 		if (direction === "d") head[1] += 1;
 		if (direction === "s") head[0] += 1;
@@ -42,9 +44,10 @@ const Board = () => {
 			// errro
 		} else {
 			setSnakeCells([...snakeCells, head]);
+			console.log("MAYBE snakeCells:", snakeCells)
 		}
 	}, [direction]);
-	
+
 	// create the initial grid. Only runs when the program first starts
 	useEffect(() => {
 		console.log("useEffect activated");
@@ -95,8 +98,9 @@ const Board = () => {
 		}
 	}, [isGameOver, snakeCells]);
 
+	// resets the entire grid
 	const reset = () => {
-		console.log("reset")
+		console.log("Reset the Grid")
 		let dummy = [];
 		for (let i = 0; i < gridWidth; i++) {
 			let row = [];
@@ -105,16 +109,17 @@ const Board = () => {
 			}
 			dummy.push(row);
 		}
+		// since the snakeCell is an array within an array
 		const snakeHead = snakeCells[0];
 		// starting place
 		dummy[snakeHead[0]][snakeHead[1]] = 1;
 
-
+		// make the snakeCell reset
 		setSnakeCells([[startRow, startCol]])
-
+		// give the state grid a new grid
 		setGrid(dummy);
-
 		setIsGameOver(false)
+		setDirection("")
 	}
 
 	if (isGameOver) return <RestartPopup action={reset}/>
