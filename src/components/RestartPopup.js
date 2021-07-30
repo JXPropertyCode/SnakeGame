@@ -10,12 +10,11 @@ const RestartPopup = (props) => {
 				<button
 					className="close-btn"
 					onClick={() => {
-						props.setIsOutOfBound(false);
+						props.action();
 					}}
 				>
 					Restart
 				</button>
-				{props.children}
 			</div>
 		</div>
 	);
