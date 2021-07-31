@@ -1,6 +1,5 @@
 import { useEffect, useState, useRef } from "react";
 import RestartPopup from "./RestartPopup";
-import Grid from "./Grid";
 import "./Board.css";
 
 const BoardTestCopy = () => {
@@ -74,26 +73,62 @@ const BoardTestCopy = () => {
 		};
 	}, [isGameOver]);
 
+	const collision = (head, grid) => {
+		console.log("Detecting Collision...");
+		let currRow = head[0];
+		let currCol = head[1];
+
+        // going out of bounds
+		if (
+			currRow < 0 ||
+			currRow >= gridHeight ||
+			currCol < 0 ||
+			currCol >= gridWidth
+		) {
+			console.log("Collision Detected: Boundaries");
+			return true;
+		}
+
+        // eating itself
+		if (grid[currRow][currCol] === 1) {
+			console.log("Collision Detected: Self");
+			return true;
+		}
+
+		console.log("No Collision Detected");
+
+		return false;
+	};
+
 	useEffect(() => {
 		if (snakeCells.length === 0) {
-            console.log("snakeCells is empty")
+			console.log("SnakeCells is Empty");
 			return;
 		}
 
-        const head = [...snakeCells[snakeCells.length - 1]];
+        if (direction === '') {
+			console.log("No Direction Assigned Yet...");
+			return;
+		}
+
+		const head = [...snakeCells[snakeCells.length - 1]];
 
 		console.log("head:", head);
 		console.log("snakeCells:", snakeCells);
 
-        console.log("Recreating the Grid...")
-        console.log("food is not yet implemented")
-        
+		console.log("Recreating the Grid...");
 		if (direction === "d") head[1] += 1;
 		if (direction === "s") head[0] += 1;
 		if (direction === "w") head[0] -= 1;
 		if (direction === "a") head[1] -= 1;
 
-        let dummy = [];
+		if (collision(head, grid)) {
+			// console.log("Collision Detected")
+			setIsGameOver(true);
+			return;
+		}
+
+		let dummy = [];
 		for (let i = 0; i < gridWidth; i++) {
 			let row = [];
 			for (let k = 0; k < gridHeight; k++) {
@@ -102,24 +137,43 @@ const BoardTestCopy = () => {
 			dummy.push(row);
 		}
 
-        console.log("foodCell:", foodCell)
+		console.log("foodCell:", foodCell);
 
-        dummy[head[0]][head[1]] = 1
-        dummy[foodCell[0]][foodCell[1]] = 2
-        console.log("moved head:", head)
-        console.log("renewed dummy:", dummy);
-        setGrid(dummy)
-		setSnakeCells([head])
+		dummy[head[0]][head[1]] = 1;
+		dummy[foodCell[0]][foodCell[1]] = 2;
+		console.log("moved head:", head);
+		console.log("renewed dummy:", dummy);
+		setGrid(dummy);
+		setSnakeCells([head]);
 	}, [direction]);
 
+	// resets the entire grid
+	const reset = () => {
+		console.log("Reset the Grid");
+		let dummy = [];
+		for (let i = 0; i < gridWidth; i++) {
+			let row = [];
+			for (let k = 0; k < gridHeight; k++) {
+				row.push(0);
+			}
+			dummy.push(row);
+		}
+		// starting place
+		dummy[startRow][startCol] = 1;
 
-    // detect snakeCells movements, then update the grid
-    // seems to be an error since it will activate during the initialization
-    // useEffect(() => {
-    //     console.log("useEffect on recreating grid")
-    // }, [snakeCells])
+        let randomRow = randomNumber(startRow + 1, gridWidth - 1);
+		let randomCol = randomNumber(startCol + 1, gridHeight - 1);
+        dummy[randomRow][randomCol] = 2
 
-	if (isGameOver) return <RestartPopup />;
+		// make the snakeCell reset
+		setSnakeCells([[startRow, startCol]]);
+        setFoodCell([randomRow, randomCol])
+        setGrid(dummy);
+		setIsGameOver(false);
+		setDirection("");
+	};
+
+	if (isGameOver) return <RestartPopup action={reset}/>;
 	console.log("Current Direction:", direction);
 	return (
 		<div className="center">
