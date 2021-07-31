@@ -1,11 +1,13 @@
 import "./App.css";
 import Board from "./components/Board";
+import BoardTestCopy from "./components/BoardTestCopy";
+
 
 function App() {
 	return (
 		<div>
-			{/* <p>Hello</p> */}
-			<Board></Board>
+			{/* <Board></Board> */}
+			<BoardTestCopy></BoardTestCopy>
 		</div>
 	);
 }
