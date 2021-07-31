@@ -55,41 +55,42 @@ const Board = () => {
 
 		console.log("direction:", direction);
 
-		// directionInterval.current = setInterval(() => {
-		// 	console.log("SetTimeOut")
-		// 	if (direction === "d") head[1] += 1;
-		// 	if (direction === "s") head[0] += 1;
-		// 	if (direction === "w") head[0] -= 1;
-		// 	if (direction === "a") head[1] -= 1;
+		// this will clear any potential interval going on and set a new interval
+		clearInterval(directionInterval.current);
+		directionInterval.current = setInterval(() => {
+			console.log("SetTimeOut")
+			if (direction === "d") head[1] += 1;
+			if (direction === "s") head[0] += 1;
+			if (direction === "w") head[0] -= 1;
+			if (direction === "a") head[1] -= 1;
 
-		// 	if (isOutOfBound(head, grid)) {
-		// 		// console.log("This is Out of Bounds");
-		// 		setIsGameOver(true);
-		// 		setSnakeCells([[startRow, startCol]])
-		// 		clearInterval(directionInterval.current);
-		// 	} else {
-		// 		// prevents the snakeCells from getting larger since it has not eaten anything
-		// 		setSnakeCells([head]);
+			if (isOutOfBound(head, grid)) {
+				// console.log("This is Out of Bounds");
+				setIsGameOver(true);
+				setSnakeCells([[startRow, startCol]])
+				clearInterval(directionInterval.current);
+			} else {
+				// prevents the snakeCells from getting larger since it has not eaten anything
+				setSnakeCells([head]);
+				// setSnakeCells([...snakeCells, head]);
+			}
+		}, 500);
 
-		// 		// setSnakeCells([...snakeCells, head]);
-		// 	}
-		// }, 1000);
+		// if (direction === "d") head[1] += 1;
+		// if (direction === "s") head[0] += 1;
+		// if (direction === "w") head[0] -= 1;
+		// if (direction === "a") head[1] -= 1;
 
-		if (direction === "d") head[1] += 1;
-		if (direction === "s") head[0] += 1;
-		if (direction === "w") head[0] -= 1;
-		if (direction === "a") head[1] -= 1;
+		// if (isOutOfBound(head, grid)) {
+		// 	// console.log("This is Out of Bounds");
+		// 	setIsGameOver(true);
+		// 	clearInterval(directionInterval.current);
+		// } else {
+		// 	// prevents the snakeCells from getting larger since it has not eaten anything
+		// 	setSnakeCells([head]);
 
-		if (isOutOfBound(head, grid)) {
-			// console.log("This is Out of Bounds");
-			setIsGameOver(true);
-			clearInterval(directionInterval.current);
-		} else {
-			// prevents the snakeCells from getting larger since it has not eaten anything
-			setSnakeCells([head]);
-
-			// setSnakeCells([...snakeCells, head]);
-		}
+		// 	// setSnakeCells([...snakeCells, head]);
+		// }
 	}, [direction]);
 
 	// create the initial grid. Only runs when the program first starts
@@ -139,9 +140,10 @@ const Board = () => {
 	useEffect(() => {
 		console.log("useEffect activated");
 		if (isGameOver === false) {
-			// console.log("isGameOver === false")
+			console.log("Creating New Grid")
 			setGrid(() => {
-				// creates a new grid
+				// creates a new grid since I gotta see which snakecell is active
+				// this is probably what makes the program slow asf tho
 				let dummy = [];
 				for (let i = 0; i < gridWidth; i++) {
 					let row = [];
