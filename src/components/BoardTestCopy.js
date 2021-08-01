@@ -193,11 +193,11 @@ const BoardTestCopy = () => {
 		let randomRow = foodCell[0];
 		let randomCol = foodCell[1];
 		if (foodCell[0] === head[0] && foodCell[1] === head[1]) {
-			console.log("foodCell[0]:", foodCell[0])
-			console.log("head[0]:", head[0])
-			console.log("foodCell[1]:", foodCell[1])
-			console.log("head[1]:", head[1])
-			
+			console.log("foodCell[0]:", foodCell[0]);
+			console.log("head[0]:", head[0]);
+			console.log("foodCell[1]:", foodCell[1]);
+			console.log("head[1]:", head[1]);
+
 			console.log("Collision Detected: FoodCell and Head");
 			while (
 				avaiableSpace(
