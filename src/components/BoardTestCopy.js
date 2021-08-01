@@ -3,8 +3,8 @@ import RestartPopup from "./RestartPopup";
 import "./Board.css";
 
 const BoardTestCopy = () => {
-	const gridWidth = 10;
-	const gridHeight = 10;
+	const gridWidth = 5;
+	const gridHeight = 5;
 	const pixelWidth = 10;
 	const pixelHeight = 10;
 	const size = gridWidth * pixelWidth;
@@ -20,16 +20,32 @@ const BoardTestCopy = () => {
 
 	// Function to generate random number for foodCell
 	const randomNumber = (min, max) => {
-		return Math.floor(Math.random() * (max - min) + min);
+		return Math.floor(Math.random() * (max - min + 1)) + min;
+	};
+
+	// detect for avaiable spaces
+	const avaiableSpace = (
+		dummy,
+		currRow,
+		currCol,
+		possibleRow,
+		possibleCol
+	) => {
+		if (currRow === possibleRow && currCol === possibleCol) {
+			return false;
+		} else if (dummy[possibleRow][possibleCol] === 0) {
+			return true;
+		}
+		return false;
 	};
 
 	// initialization
 	useEffect(() => {
 		console.log("Initialization");
 		let dummy = [];
-		for (let i = 0; i < gridWidth; i++) {
+		for (let i = 0; i < gridHeight; i++) {
 			let row = [];
-			for (let k = 0; k < gridHeight; k++) {
+			for (let k = 0; k < gridWidth; k++) {
 				row.push(0);
 			}
 			dummy.push(row);
@@ -40,9 +56,22 @@ const BoardTestCopy = () => {
 		dummy[startRow][startCol] = 1;
 
 		// generating a random food
-		let randomRow = randomNumber(startRow + 1, gridWidth - 1);
-		let randomCol = randomNumber(startCol + 1, gridHeight - 1);
+		let randomRow = randomNumber(0, gridWidth - 1);
+		let randomCol = randomNumber(0, gridHeight - 1);
+		while (
+			avaiableSpace(dummy, startRow, startCol, randomRow, randomCol) ===
+			false
+		) {
+			console.log("Recalculating Avaiable Space");
+			randomRow = randomNumber(0, gridWidth - 1);
+			randomCol = randomNumber(0, gridHeight - 1);
+
+			console.log("new randomRow:", randomRow);
+			console.log("new randomCol:", randomCol);
+		}
+
 		dummy[randomRow][randomCol] = 2;
+		console.log("foodCell:", [randomRow, randomCol]);
 
 		setSnakeCells([[startRow, startCol]]);
 		setFoodCell([randomRow, randomCol]);
@@ -78,7 +107,7 @@ const BoardTestCopy = () => {
 		let currRow = head[0];
 		let currCol = head[1];
 
-        // going out of bounds
+		// going out of bounds
 		if (
 			currRow < 0 ||
 			currRow >= gridHeight ||
@@ -89,24 +118,48 @@ const BoardTestCopy = () => {
 			return true;
 		}
 
-        // eating itself
+		// eating itself
 		if (grid[currRow][currCol] === 1) {
 			console.log("Collision Detected: Self");
 			return true;
 		}
 
-		console.log("No Collision Detected");
+		// eats a food
+		if (grid[currRow][currCol] === 2) {
+			console.log("Collision: Food");
+			let randomRow = randomNumber(0, gridWidth - 1);
+			let randomCol = randomNumber(0, gridHeight - 1);
+
+			while (
+				avaiableSpace(grid, currRow, currCol, randomRow, randomCol) ===
+				false
+			) {
+				console.log("Recalculating Avaiable Space");
+				randomRow = randomNumber(0, gridWidth - 1);
+				randomCol = randomNumber(0, gridHeight - 1);
+
+				console.log("new randomRow:", randomRow);
+				console.log("new randomCol:", randomCol);
+			}
+			console.log("foodCell:", [randomRow, randomCol]);
+			setFoodCell([randomRow, randomCol]);
+		}
+
+		if (grid[currRow][currCol] === 0) {
+			console.log("No Collision Detected");
+		}
 
 		return false;
 	};
 
+	// detects direction useState() changes
 	useEffect(() => {
 		if (snakeCells.length === 0) {
 			console.log("SnakeCells is Empty");
 			return;
 		}
 
-        if (direction === '') {
+		if (direction === "") {
 			console.log("No Direction Assigned Yet...");
 			return;
 		}
@@ -137,10 +190,40 @@ const BoardTestCopy = () => {
 			dummy.push(row);
 		}
 
+		let randomRow = foodCell[0];
+		let randomCol = foodCell[1];
+		if (foodCell[0] === head[0] && foodCell[1] === head[1]) {
+			console.log("foodCell[0]:", foodCell[0])
+			console.log("head[0]:", head[0])
+			console.log("foodCell[1]:", foodCell[1])
+			console.log("head[1]:", head[1])
+			
+			console.log("Collision Detected: FoodCell and Head");
+			while (
+				avaiableSpace(
+					grid,
+					foodCell[0],
+					foodCell[1],
+					randomRow,
+					randomCol
+				) === false
+			) {
+				console.log("Recalculating Avaiable Space");
+				randomRow = randomNumber(0, gridWidth - 1);
+				randomCol = randomNumber(0, gridHeight - 1);
+
+				console.log("new randomRow:", randomRow);
+				console.log("new randomCol:", randomCol);
+			}
+
+			console.log("foodCell:", [randomRow, randomCol]);
+			setFoodCell([randomRow, randomCol]);
+		}
+
 		console.log("foodCell:", foodCell);
 
 		dummy[head[0]][head[1]] = 1;
-		dummy[foodCell[0]][foodCell[1]] = 2;
+		dummy[randomRow][randomCol] = 2;
 		console.log("moved head:", head);
 		console.log("renewed dummy:", dummy);
 		setGrid(dummy);
@@ -151,9 +234,9 @@ const BoardTestCopy = () => {
 	const reset = () => {
 		console.log("Reset the Grid");
 		let dummy = [];
-		for (let i = 0; i < gridWidth; i++) {
+		for (let i = 0; i < gridHeight; i++) {
 			let row = [];
-			for (let k = 0; k < gridHeight; k++) {
+			for (let k = 0; k < gridWidth; k++) {
 				row.push(0);
 			}
 			dummy.push(row);
@@ -161,19 +244,31 @@ const BoardTestCopy = () => {
 		// starting place
 		dummy[startRow][startCol] = 1;
 
-        let randomRow = randomNumber(startRow + 1, gridWidth - 1);
-		let randomCol = randomNumber(startCol + 1, gridHeight - 1);
-        dummy[randomRow][randomCol] = 2
+		let randomRow = randomNumber(0, gridWidth - 1);
+		let randomCol = randomNumber(0, gridHeight - 1);
 
-		// make the snakeCell reset
+		while (
+			avaiableSpace(dummy, startRow, startCol, randomRow, randomCol) ===
+			false
+		) {
+			console.log("Recalculating Avaiable Space");
+			randomRow = randomNumber(0, gridWidth - 1);
+			randomCol = randomNumber(0, gridHeight - 1);
+			console.log("new randomRow:", randomRow);
+			console.log("new randomCol:", randomCol);
+		}
+
+		console.log("foodCell:", [randomRow, randomCol]);
+		dummy[randomRow][randomCol] = 2;
+
 		setSnakeCells([[startRow, startCol]]);
-        setFoodCell([randomRow, randomCol])
-        setGrid(dummy);
+		setFoodCell([randomRow, randomCol]);
+		setGrid(dummy);
 		setIsGameOver(false);
 		setDirection("");
 	};
 
-	if (isGameOver) return <RestartPopup action={reset}/>;
+	if (isGameOver) return <RestartPopup action={reset} />;
 	console.log("Current Direction:", direction);
 	return (
 		<div className="center">
