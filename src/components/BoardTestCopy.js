@@ -1,10 +1,11 @@
 import { useEffect, useState, useRef } from "react";
 import RestartPopup from "./RestartPopup";
 import "./Board.css";
+import { findAllByDisplayValue } from "@testing-library/react";
 
 const BoardTestCopy = () => {
-	const gridWidth = 5;
-	const gridHeight = 5;
+	const gridWidth = 2;
+	const gridHeight = 2;
 	const pixelWidth = 10;
 	const pixelHeight = 10;
 	const size = gridWidth * pixelWidth;
@@ -39,6 +40,23 @@ const BoardTestCopy = () => {
 		return false;
 	};
 
+	const detectRelocation = (dummy, startRow, startCol) => {
+		let randomRow = randomNumber(0, gridWidth - 1);
+		let randomCol = randomNumber(0, gridHeight - 1);
+		while (
+			avaiableSpace(dummy, startRow, startCol, randomRow, randomCol) ===
+			false
+		) {
+			console.log("Recalculating Avaiable Space");
+			randomRow = randomNumber(0, gridWidth - 1);
+			randomCol = randomNumber(0, gridHeight - 1);
+
+			console.log("new randomRow:", randomRow);
+			console.log("new randomCol:", randomCol);
+		}
+		return [randomRow, randomCol];
+	};
+
 	// initialization
 	useEffect(() => {
 		console.log("Initialization");
@@ -55,26 +73,13 @@ const BoardTestCopy = () => {
 		// start of the snakeHead
 		dummy[startRow][startCol] = 1;
 
-		// generating a random food
-		let randomRow = randomNumber(0, gridWidth - 1);
-		let randomCol = randomNumber(0, gridHeight - 1);
-		while (
-			avaiableSpace(dummy, startRow, startCol, randomRow, randomCol) ===
-			false
-		) {
-			console.log("Recalculating Avaiable Space");
-			randomRow = randomNumber(0, gridWidth - 1);
-			randomCol = randomNumber(0, gridHeight - 1);
+		let foodCoordinate = detectRelocation(dummy, startRow, startCol);
+		console.log("initialization foodCoordinate:", foodCoordinate);
 
-			console.log("new randomRow:", randomRow);
-			console.log("new randomCol:", randomCol);
-		}
-
-		dummy[randomRow][randomCol] = 2;
-		console.log("foodCell:", [randomRow, randomCol]);
-
+		dummy[foodCoordinate[0]][foodCoordinate[1]] = 2;
+		console.log("foodCell:", [foodCoordinate[0], foodCoordinate[1]]);
 		setSnakeCells([[startRow, startCol]]);
-		setFoodCell([randomRow, randomCol]);
+		setFoodCell([foodCoordinate[0], foodCoordinate[1]]);
 		setGrid(dummy);
 	}, []);
 
@@ -124,30 +129,19 @@ const BoardTestCopy = () => {
 			return true;
 		}
 
-		// eats a food
-		if (grid[currRow][currCol] === 2) {
-			console.log("Collision: Food");
-			let randomRow = randomNumber(0, gridWidth - 1);
-			let randomCol = randomNumber(0, gridHeight - 1);
-
-			while (
-				avaiableSpace(grid, currRow, currCol, randomRow, randomCol) ===
-				false
-			) {
-				console.log("Recalculating Avaiable Space");
-				randomRow = randomNumber(0, gridWidth - 1);
-				randomCol = randomNumber(0, gridHeight - 1);
-
-				console.log("new randomRow:", randomRow);
-				console.log("new randomCol:", randomCol);
-			}
-			console.log("foodCell:", [randomRow, randomCol]);
-			setFoodCell([randomRow, randomCol]);
-		}
-
 		if (grid[currRow][currCol] === 0) {
 			console.log("No Collision Detected");
+			return false;
 		}
+
+		// if (grid[currRow][currCol] === 2) {
+		// 	console.log("Collision Detected: Head and Food");
+
+		// 	let foodCoordinate = detectRelocation(grid, currRow, currCol);
+		// 	console.log("initialization foodCoordinate:", foodCoordinate);
+		// 	grid[foodCoordinate[0]][foodCoordinate[1]] = 2;
+		// }
+
 
 		return false;
 	};
@@ -190,40 +184,19 @@ const BoardTestCopy = () => {
 			dummy.push(row);
 		}
 
-		let randomRow = foodCell[0];
-		let randomCol = foodCell[1];
 		if (foodCell[0] === head[0] && foodCell[1] === head[1]) {
-			console.log("foodCell[0]:", foodCell[0]);
-			console.log("head[0]:", head[0]);
-			console.log("foodCell[1]:", foodCell[1]);
-			console.log("head[1]:", head[1]);
-
 			console.log("Collision Detected: FoodCell and Head");
-			while (
-				avaiableSpace(
-					grid,
-					foodCell[0],
-					foodCell[1],
-					randomRow,
-					randomCol
-				) === false
-			) {
-				console.log("Recalculating Avaiable Space");
-				randomRow = randomNumber(0, gridWidth - 1);
-				randomCol = randomNumber(0, gridHeight - 1);
-
-				console.log("new randomRow:", randomRow);
-				console.log("new randomCol:", randomCol);
-			}
-
-			console.log("foodCell:", [randomRow, randomCol]);
-			setFoodCell([randomRow, randomCol]);
+			console.log("FoodCell current position:", foodCell)
+			let foodCoordinate = detectRelocation(dummy, head[0], head[1]);
+			console.log("initialization foodCoordinate:", foodCoordinate);
+			dummy[foodCoordinate[0]][foodCoordinate[1]] = 2;
+			setFoodCell([foodCoordinate[0], foodCoordinate[1]]);
+		} else {
+			console.log("Collision NOT Detected")
+			dummy[foodCell[0]][foodCell[1]] = 2;
 		}
 
-		console.log("foodCell:", foodCell);
-
 		dummy[head[0]][head[1]] = 1;
-		dummy[randomRow][randomCol] = 2;
 		console.log("moved head:", head);
 		console.log("renewed dummy:", dummy);
 		setGrid(dummy);
@@ -244,25 +217,12 @@ const BoardTestCopy = () => {
 		// starting place
 		dummy[startRow][startCol] = 1;
 
-		let randomRow = randomNumber(0, gridWidth - 1);
-		let randomCol = randomNumber(0, gridHeight - 1);
-
-		while (
-			avaiableSpace(dummy, startRow, startCol, randomRow, randomCol) ===
-			false
-		) {
-			console.log("Recalculating Avaiable Space");
-			randomRow = randomNumber(0, gridWidth - 1);
-			randomCol = randomNumber(0, gridHeight - 1);
-			console.log("new randomRow:", randomRow);
-			console.log("new randomCol:", randomCol);
-		}
-
-		console.log("foodCell:", [randomRow, randomCol]);
-		dummy[randomRow][randomCol] = 2;
-
+		let foodCoordinate = detectRelocation(dummy, startRow, startCol);
+		console.log("initialization foodCoordinate:", foodCoordinate);
+		dummy[foodCoordinate[0]][foodCoordinate[1]] = 2;
+		
 		setSnakeCells([[startRow, startCol]]);
-		setFoodCell([randomRow, randomCol]);
+		setFoodCell([foodCoordinate[0], foodCoordinate[1]]);
 		setGrid(dummy);
 		setIsGameOver(false);
 		setDirection("");
