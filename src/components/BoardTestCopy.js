@@ -1,11 +1,10 @@
 import { useEffect, useState, useRef } from "react";
 import RestartPopup from "./RestartPopup";
 import "./Board.css";
-import { findAllByDisplayValue } from "@testing-library/react";
 
 const BoardTestCopy = () => {
-	const gridWidth = 2;
-	const gridHeight = 2;
+	const gridWidth = 10;
+	const gridHeight = 10;
 	const pixelWidth = 10;
 	const pixelHeight = 10;
 	const size = gridWidth * pixelWidth;
@@ -133,15 +132,6 @@ const BoardTestCopy = () => {
 			console.log("No Collision Detected");
 			return false;
 		}
-
-		// if (grid[currRow][currCol] === 2) {
-		// 	console.log("Collision Detected: Head and Food");
-
-		// 	let foodCoordinate = detectRelocation(grid, currRow, currCol);
-		// 	console.log("initialization foodCoordinate:", foodCoordinate);
-		// 	grid[foodCoordinate[0]][foodCoordinate[1]] = 2;
-		// }
-
 
 		return false;
 	};
