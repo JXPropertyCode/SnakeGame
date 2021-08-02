@@ -216,13 +216,13 @@ const BoardTestCopy = () => {
 				// foodCellReference = [...foodCoordinate]
 				// dummy[foodCellReference[0]][foodCellReference[1]] = 2;
 				dummy[foodCoordinate[0]][foodCoordinate[1]] = 2;
-				setFoodCell([...foodCoordinate])
+				setFoodCell([...foodCoordinate]);
 			} else {
 				console.log("Collision NOT Detected");
 				console.log("original food coorindate", foodCell);
 				// dummy[foodCellReference[0]][foodCellReference[1]] = 2;
 				dummy[foodCell[0]][foodCell[1]] = 2;
-				setFoodCell([...foodCell])
+				setFoodCell([...foodCell]);
 			}
 
 			dummy[head[0]][head[1]] = 1;
@@ -231,7 +231,7 @@ const BoardTestCopy = () => {
 			setGrid(dummy);
 			setSnakeCells([[...head]]);
 			// setFoodCell([...foodCellReference])
-		}, 500);
+		}, 250);
 	}, [direction, foodCell]);
 
 	// tracking grid
