@@ -222,6 +222,7 @@ const BoardTestCopy = () => {
 				console.log("original food coorindate", foodCell);
 				// dummy[foodCellReference[0]][foodCellReference[1]] = 2;
 				dummy[foodCell[0]][foodCell[1]] = 2;
+				setFoodCell([...foodCell])
 			}
 
 			dummy[head[0]][head[1]] = 1;
