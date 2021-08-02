@@ -3,8 +3,8 @@ import RestartPopup from "./RestartPopup";
 import "./Board.css";
 
 const BoardTestCopy = () => {
-	const gridWidth = 10;
-	const gridHeight = 10;
+	const gridWidth = 5;
+	const gridHeight = 5;
 	const pixelWidth = 10;
 	const pixelHeight = 10;
 	const size = gridWidth * pixelWidth;
@@ -17,6 +17,8 @@ const BoardTestCopy = () => {
 	const [isGameOver, setIsGameOver] = useState(false);
 	const [grid, setGrid] = useState([]);
 	const [direction, setDirection] = useState("");
+
+	const directionInterval = useRef(null);
 
 	// Function to generate random number for foodCell
 	const randomNumber = (min, max) => {
@@ -89,7 +91,6 @@ const BoardTestCopy = () => {
 	};
 
 	useEffect(() => {
-		// console.log("useEffect activated");
 		console.log("useEffect Listening to KeyDown:", !isGameOver);
 		if (!isGameOver) {
 			console.log("Actively Listening to KeyDowns");
@@ -97,12 +98,12 @@ const BoardTestCopy = () => {
 		} else {
 			console.log("NOT Listening to KeyDowns");
 			window.removeEventListener("keydown", onKeyDown);
-			// clearInterval(directionInterval.current);
+			clearInterval(directionInterval.current);
 		}
 
 		return () => {
 			window.removeEventListener("keydown", onKeyDown);
-			// clearInterval(directionInterval.current);
+			clearInterval(directionInterval.current);
 		};
 	}, [isGameOver]);
 
@@ -136,7 +137,32 @@ const BoardTestCopy = () => {
 		return false;
 	};
 
+	const recreateGrid = () => {
+		let dummy = [];
+		for (let i = 0; i < gridWidth; i++) {
+			let row = [];
+			for (let k = 0; k < gridHeight; k++) {
+				row.push(0);
+			}
+			dummy.push(row);
+		}
+
+		for (let snakeCell of snakeCells) {
+			dummy[snakeCell[0]][snakeCell[1]] = 1;
+		}
+
+		if (foodCell.length !== 0) {
+			dummy[foodCell[0]][foodCell[1]] = 2;
+		}
+		console.log("Renewed the Grid:", dummy);
+		setGrid(dummy);
+		return dummy;
+	};
+
+	// creating a replica to test
 	// detects direction useState() changes
+	// let foodCellReference = [...foodCell]
+
 	useEffect(() => {
 		if (snakeCells.length === 0) {
 			console.log("SnakeCells is Empty");
@@ -149,51 +175,87 @@ const BoardTestCopy = () => {
 		}
 
 		const head = [...snakeCells[snakeCells.length - 1]];
+		// const currFood = [...foodCell];
+		console.log("Given Head:", head);
 
-		console.log("head:", head);
-		console.log("snakeCells:", snakeCells);
+		clearInterval(directionInterval.current);
+		// let foodCellReference = []
+		directionInterval.current = setInterval(() => {
+			// add foodCell reference?
+			// foodCellReference = [...foodCell]
 
-		console.log("Recreating the Grid...");
-		if (direction === "d") head[1] += 1;
-		if (direction === "s") head[0] += 1;
-		if (direction === "w") head[0] -= 1;
-		if (direction === "a") head[1] -= 1;
+			console.log("Recreating the Grid...");
+			if (direction === "d") head[1] += 1;
+			if (direction === "s") head[0] += 1;
+			if (direction === "w") head[0] -= 1;
+			if (direction === "a") head[1] -= 1;
 
-		if (collision(head, grid)) {
-			// console.log("Collision Detected")
-			setIsGameOver(true);
-			return;
-		}
+			// console.log("Gridasd:", grid);
+			console.log("moved head:", head);
 
-		let dummy = [];
-		for (let i = 0; i < gridWidth; i++) {
-			let row = [];
-			for (let k = 0; k < gridHeight; k++) {
-				row.push(0);
+			if (collision(head, grid)) {
+				setIsGameOver(true);
+				clearInterval(directionInterval.current);
+				return;
 			}
-			dummy.push(row);
-		}
 
-		if (foodCell[0] === head[0] && foodCell[1] === head[1]) {
-			console.log("Collision Detected: FoodCell and Head");
-			console.log("FoodCell current position:", foodCell)
-			let foodCoordinate = detectRelocation(dummy, head[0], head[1]);
-			console.log("initialization foodCoordinate:", foodCoordinate);
-			dummy[foodCoordinate[0]][foodCoordinate[1]] = 2;
-			setFoodCell([foodCoordinate[0], foodCoordinate[1]]);
-		} else {
-			console.log("Collision NOT Detected")
-			dummy[foodCell[0]][foodCell[1]] = 2;
-		}
+			let dummy = [];
+			for (let i = 0; i < gridWidth; i++) {
+				let row = [];
+				for (let k = 0; k < gridHeight; k++) {
+					row.push(0);
+				}
+				dummy.push(row);
+			}
 
-		dummy[head[0]][head[1]] = 1;
-		console.log("moved head:", head);
-		console.log("renewed dummy:", dummy);
-		setGrid(dummy);
-		setSnakeCells([head]);
-	}, [direction]);
+			if (foodCell[0] === head[0] && foodCell[1] === head[1]) {
+				console.log("Collision Detected: FoodCell and Head");
+				let foodCoordinate = detectRelocation(dummy, head[0], head[1]);
+				console.log("initialization foodCoordinate:", foodCoordinate);
 
-	// resets the entire grid
+				// foodCellReference = [...foodCoordinate]
+				// dummy[foodCellReference[0]][foodCellReference[1]] = 2;
+				dummy[foodCoordinate[0]][foodCoordinate[1]] = 2;
+				setFoodCell([...foodCoordinate])
+			} else {
+				console.log("Collision NOT Detected");
+				console.log("original food coorindate", foodCell);
+				// dummy[foodCellReference[0]][foodCellReference[1]] = 2;
+				dummy[foodCell[0]][foodCell[1]] = 2;
+			}
+
+			dummy[head[0]][head[1]] = 1;
+
+			console.log("renewed dummy:", dummy);
+			setGrid(dummy);
+			setSnakeCells([[...head]]);
+			// setFoodCell([...foodCellReference])
+		}, 500);
+	}, [direction, foodCell]);
+
+	// tracking grid
+	// useEffect(() => {
+	// 	console.log("Grid Detected Change");
+	// 	let dummy = [];
+	// 	for (let i = 0; i < gridWidth; i++) {
+	// 		let row = [];
+	// 		for (let k = 0; k < gridHeight; k++) {
+	// 			row.push(0);
+	// 		}
+	// 		dummy.push(row);
+	// 	}
+
+	// 	for (let snakeCell of snakeCells) {
+	// 		dummy[snakeCell[0]][snakeCell[1]] = 1
+	// 	}
+
+	// 	if (foodCell.length !== 0) {
+	// 		dummy[foodCell[0]][foodCell[1]] = 2
+	// 	}
+	// 	console.log("Renewed the Grid:", dummy)
+	// 	setGrid(dummy)
+	// }, [grid]);
+
 	const reset = () => {
 		console.log("Reset the Grid");
 		let dummy = [];
@@ -210,7 +272,7 @@ const BoardTestCopy = () => {
 		let foodCoordinate = detectRelocation(dummy, startRow, startCol);
 		console.log("initialization foodCoordinate:", foodCoordinate);
 		dummy[foodCoordinate[0]][foodCoordinate[1]] = 2;
-		
+
 		setSnakeCells([[startRow, startCol]]);
 		setFoodCell([foodCoordinate[0], foodCoordinate[1]]);
 		setGrid(dummy);
