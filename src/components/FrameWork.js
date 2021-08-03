@@ -140,8 +140,8 @@
 // 		return false;
 // 	};
 
-// 	// detects direction and foodCell useState() changes
-// 	useEffect(() => {
+
+//     useEffect(() => {
 // 		if (snakeCells.length === 0) {
 // 			console.log("SnakeCells is Empty");
 // 			return;
@@ -152,16 +152,13 @@
 // 			return;
 // 		}
 
-// 		let prevHead = [...snakeCells[snakeCells.length - 1]];
-// 		let tail = [...snakeCells];
-// 		let foodCellArr = [...foodCell];
-
+//         // determine current head
+//         // determine if nextHead is valid
+//         // recreate grid
+//         // update the grid with appropriate values
 // 		clearInterval(directionInterval.current);
 // 		directionInterval.current = setInterval(() => {
-// 			console.log("prevHead:", prevHead);
-// 			console.log("Given snakeLength:", snakeLength);
-// 			let nextHead = [...prevHead];
-
+			
 // 			console.log("Recreating the Grid...");
 // 			if (direction === "d") nextHead[1] += 1;
 // 			if (direction === "s") nextHead[0] += 1;
@@ -176,12 +173,6 @@
 // 				return;
 // 			}
 
-// 			let newHead = [nextHead[0], nextHead[1]];
-// 			console.log("newHead:", newHead);
-
-// 			tail = [[...newHead]];
-// 			prevHead = [...tail[tail.length - 1]];
-
 // 			let dummy = [];
 // 			for (let i = 0; i < gridWidth; i++) {
 // 				let row = [];
@@ -191,39 +182,16 @@
 // 				dummy.push(row);
 // 			}
 
-// 			let foodCoordinate = foodCellArr;
-// 			// detect collision with food
-// 			if (
-// 				foodCoordinate[0] === newHead[0] &&
-// 				foodCoordinate[1] === newHead[1]
-// 			) {
-// 				console.log("Eaten");
-// 				// note this only makes sure it doesn't hit the head, if theres a tail, it won't work, it would override each other
-// 				foodCoordinate = detectRelocation(
-// 					dummy,
-// 					newHead[0],
-// 					newHead[1]
-// 				);
-// 				foodCellArr = [...foodCoordinate]
-// 				console.log("new foodCoordinate:", foodCoordinate);
-// 				setSnakeLength((length) => length + 1);
-// 				// setFoodCell([...foodCoordinate]);
-// 			}
-
-// 			console.log("tail:", tail);
 // 			for (let cell of tail) {
 // 				dummy[cell[0]][cell[1]] = 1;
-// 				dummy[foodCoordinate[0]][foodCoordinate[1]] = 2;
+// 				dummy[foodCellArr[0]][foodCellArr[1]] = 2;
 // 			}
 
-// 			// setFoodCell([...foodCoordinate]);
-
-// 			// setFoodCell(foodCoordinate);
-// 			setSnakeCells([[...newHead]]);
 // 			setGrid(dummy);
 // 			console.log("Final Dummy:", dummy);
 // 		}, 500);
-// 	}, [direction, foodCell, snakeLength]);
+// 	}, []);
+// 	// }, [direction, foodCell, snakeLength]);
 
 // 	const reset = () => {
 // 		console.log("Reset the Grid");
