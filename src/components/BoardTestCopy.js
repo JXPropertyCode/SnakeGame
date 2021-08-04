@@ -191,7 +191,7 @@ const BoardTestCopy = () => {
 				dummy.push(row);
 			}
 
-			let foodCoordinate = foodCellArr;
+			let foodCoordinate = [...foodCellArr];
 			// detect collision with food
 			if (
 				foodCoordinate[0] === newHead[0] &&
@@ -209,22 +209,17 @@ const BoardTestCopy = () => {
 				setSnakeLength((length) => length + 1);
 				setFoodCell([...foodCoordinate]);
 			}
-
+			
 			console.log("tail:", tail);
 			for (let cell of tail) {
 				dummy[cell[0]][cell[1]] = 1;
 				dummy[foodCellArr[0]][foodCellArr[1]] = 2;
 			}
-
-			// setFoodCell([...foodCoordinate]);
-
-			// setFoodCell(foodCoordinate);
 			setSnakeCells([[...newHead]]);
 			setGrid(dummy);
 			console.log("Final Dummy:", dummy);
 		}, 500);
-	}, [direction, snakeLength]);
-	// }, [direction, foodCell, snakeLength]);
+	}, [direction]);
 
 	const reset = () => {
 		console.log("Reset the Grid");
@@ -248,6 +243,7 @@ const BoardTestCopy = () => {
 		setGrid(dummy);
 		setIsGameOver(false);
 		setDirection("");
+		setSnakeLength(1)
 	};
 
 	if (isGameOver) return <RestartPopup action={reset} />;
