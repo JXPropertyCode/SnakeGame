@@ -1,9 +1,10 @@
 // import { useEffect, useState, useRef } from "react";
 // import RestartPopup from "./RestartPopup";
+// import WonPopup from './WonPopup'
 // import "./Board.css";
 
 // const gridWidth = 2;
-// const gridHeight = 1;
+// const gridHeight = 2;
 // const createMatrix = () => {
 // 	let dummy = [];
 // 	for (let i = 0; i < gridWidth; i++) {
@@ -27,17 +28,14 @@
 // 	const startCol = 0;
 
 // 	const [snakeCells, setSnakeCells] = useState([]);
-// 	// const [snakeHead, setSnakeHead] = useState([]);
 
 // 	const [foodCell, setFoodCell] = useState([]);
 // 	const [isGameOver, setIsGameOver] = useState(false);
 // 	const [grid, setGrid] = useState([]);
 // 	const [direction, setDirection] = useState("");
-// 	// const [isEaten, setIsEaten] = useState(false);
+// 	const [won, setWon] = useState(false)
 
 // 	const interval = useRef(null);
-
-// 	// const directionInterval = useRef(null);
 
 // 	// Function to generate random number for foodCell
 // 	const randomNumber = (min, max) => {
@@ -45,28 +43,17 @@
 // 	};
 
 // 	// detect for avaiable spaces
-// 	const avaiableSpace = (
-// 		dummy,
-// 		currRow,
-// 		currCol,
-// 		possibleRow,
-// 		possibleCol
-// 	) => {
-// 		if (currRow === possibleRow && currCol === possibleCol) {
+// 	const avaiableSpace = (dummy, possibleRow, possibleCol) => {
+// 		if (dummy[possibleRow][possibleCol] === 1) {
 // 			return false;
-// 		} else if (dummy[possibleRow][possibleCol] === 0) {
-// 			return true;
 // 		}
-// 		return false;
+// 		return true;
 // 	};
 
-// 	const detectRelocation = (dummy, startRow, startCol) => {
+// 	const detectRelocation = (dummy) => {
 // 		let randomRow = randomNumber(0, gridWidth - 1);
 // 		let randomCol = randomNumber(0, gridHeight - 1);
-// 		while (
-// 			avaiableSpace(dummy, startRow, startCol, randomRow, randomCol) ===
-// 			false
-// 		) {
+// 		while (avaiableSpace(dummy, randomRow, randomCol) === false) {
 // 			// console.log("Recalculating Avaiable Space");
 // 			randomRow = randomNumber(0, gridWidth - 1);
 // 			randomCol = randomNumber(0, gridHeight - 1);
@@ -85,7 +72,7 @@
 // 		// start of the snakeHead
 // 		dummy[startRow][startCol] = 1;
 
-// 		let foodCoordinate = detectRelocation(dummy, startRow, startCol);
+// 		let foodCoordinate = detectRelocation(dummy);
 // 		// console.log("initialization foodCoordinate:", foodCoordinate);
 
 // 		dummy[foodCoordinate[0]][foodCoordinate[1]] = 2;
@@ -93,7 +80,7 @@
 
 // 		console.log("dummy:", dummy);
 
-// 		console.log("starting snakeCells:", [[startRow, startCol]])
+// 		console.log("starting snakeCells:", [[startRow, startCol]]);
 // 		setSnakeCells([[startRow, startCol]]);
 // 		setFoodCell([foodCoordinate[0], foodCoordinate[1]]);
 // 		setGrid(dummy);
@@ -167,10 +154,10 @@
 // 			return;
 // 		}
 
-// 		if (snakeLength === gridWidth*gridHeight) {
-// 			setIsGameOver(true)
+// 		if (snakeLength === gridWidth * gridHeight) {
+// 			setIsGameOver(true);
 // 			clearInterval(interval.current);
-// 			return
+// 			return;
 // 		}
 
 // 		console.log("given snakeCells:", snakeCells);
@@ -194,47 +181,51 @@
 // 			}
 
 // 			let foodCoordinate = [...foodCell];
-// 			let snakeTest = [...snakeCells]
-// 			console.log("snakeTest:", snakeTest)
+// 			let snakeTest = [...snakeCells];
+// 			console.log("snakeTest:", snakeTest);
 // 			// what happens when it eats a food
 // 			// note this only makes sure it doesn't hit the head, if theres a tail, it won't work, it would override each other
 // 			if (nextHead[0] === foodCell[0] && nextHead[1] === foodCell[1]) {
+
+
+
 // 				console.log("Eaten");
-// 				foodCoordinate = detectRelocation(
-// 					grid,
-// 					nextHead[0],
-// 					nextHead[1]
-// 				);
 // 				console.log("new foodCoordinate:", foodCoordinate);
-// 				console.log("snakeLength:", snakeLength+1)
+// 				console.log("snakeLength:", snakeLength + 1);
 
 // 				setSnakeLength((length) => length + 1);
 
-// 				if (snakeLength+1 === gridWidth*gridHeight) {
-// 					setIsGameOver(true)
-// 					return
+// 				if (snakeLength + 1 === gridWidth * gridHeight) {
+// 					setWon(true);
+// 					return;
 // 				}
 
+// 				grid[nextHead[0]][nextHead[1]] = 1
+
+// 				console.log("new tail:", [...snakeTest, [...nextHead]]);
+// 				snakeTest = [...snakeTest, [...nextHead]];
+
+// 				foodCoordinate = detectRelocation(grid);
 // 				setFoodCell([...foodCoordinate]);
-// 				console.log("new tail:", [...snakeTest, [...nextHead]])
-// 				snakeTest = [...snakeTest, [...nextHead]]
+
+
 // 			} else {
-// 				console.log("snakeLength:", snakeLength)
-// 				console.log("Current SnakeCells:", snakeCells)
-// 				snakeTest = [...snakeTest, [...nextHead]]
-// 				console.log("snakeTest added tail:", snakeTest)
-// 				snakeTest.shift()
-// 				console.log("removed tail:", [...snakeTest])
+// 				console.log("snakeLength:", snakeLength);
+// 				console.log("Current SnakeCells:", snakeCells);
+// 				snakeTest = [...snakeTest, [...nextHead]];
+// 				console.log("snakeTest added tail:", snakeTest);
+// 				snakeTest.shift();
+// 				console.log("removed tail:", [...snakeTest]);
 // 			}
 
 // 			let dummy = createMatrix();
 
 // 			for (let cell of snakeTest) {
-// 				dummy[cell[0]][cell[1]] = 1
+// 				dummy[cell[0]][cell[1]] = 1;
 // 			}
 
 // 			dummy[foodCoordinate[0]][foodCoordinate[1]] = 2;
-// 			setSnakeCells([...snakeTest])
+// 			setSnakeCells([...snakeTest]);
 // 			setGrid(dummy);
 // 		}, 500);
 // 	}, [isGameOver, snakeCells, direction]);
@@ -263,14 +254,23 @@
 // 		setDirection("");
 // 		setSnakeLength(1);
 // 		clearInterval(interval.current);
+// 		setWon(false)
 // 	};
 
 // 	if (isGameOver) return <RestartPopup action={reset} />;
+// 	if (won) return <WonPopup action={reset} />;
 // 	console.log("Current Direction:", direction);
+// 	console.log("---------------------------")
 // 	return (
 // 		<div className="center">
 // 			<p>Snake Board</p>
-// 			<div style={{ width: pixelWidth, height: pixelHeight, background: "red" }}>
+// 			<div
+// 				style={{
+// 					width: size,
+// 					height: size,
+// 					background: "red",
+// 				}}
+// 			>
 // 				{grid.map((row, i) => {
 // 					return (
 // 						<div

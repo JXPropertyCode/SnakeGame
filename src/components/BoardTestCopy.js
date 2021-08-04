@@ -187,8 +187,6 @@ const BoardTestCopy = () => {
 			// note this only makes sure it doesn't hit the head, if theres a tail, it won't work, it would override each other
 			if (nextHead[0] === foodCell[0] && nextHead[1] === foodCell[1]) {
 
-
-
 				console.log("Eaten");
 				console.log("new foodCoordinate:", foodCoordinate);
 				console.log("snakeLength:", snakeLength + 1);
@@ -260,6 +258,7 @@ const BoardTestCopy = () => {
 	if (isGameOver) return <RestartPopup action={reset} />;
 	if (won) return <WonPopup action={reset} />;
 	console.log("Current Direction:", direction);
+	console.log("---------------------------")
 	return (
 		<div className="center">
 			<p>Snake Board</p>
