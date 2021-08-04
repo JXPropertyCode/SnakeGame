@@ -100,7 +100,7 @@ const BoardTestCopy = () => {
 
 	useEffect(() => {
 		// console.log("useEffect Listening to KeyDown:", !isGameOver);
-		if (!isGameOver) {
+		if (!isGameOver && !won) {
 			// console.log("Actively Listening to KeyDowns");
 			window.addEventListener("keydown", onKeyDown);
 		} else {
@@ -115,7 +115,7 @@ const BoardTestCopy = () => {
 			// clearInterval(directionInterval.current);
 			clearInterval(interval.current);
 		};
-	}, [isGameOver]);
+	}, [isGameOver, won]);
 
 	const collision = (head, grid) => {
 		// console.log("Detecting Collision...");
