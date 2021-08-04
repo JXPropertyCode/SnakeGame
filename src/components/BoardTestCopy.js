@@ -2,8 +2,8 @@ import { useEffect, useState, useRef } from "react";
 import RestartPopup from "./RestartPopup";
 import "./Board.css";
 
-const gridWidth = 5;
-const gridHeight = 5;
+const gridWidth = 2;
+const gridHeight = 1;
 const createMatrix = () => {
 	let dummy = [];
 	for (let i = 0; i < gridWidth; i++) {
@@ -93,6 +93,7 @@ const BoardTestCopy = () => {
 
 		console.log("dummy:", dummy);
 
+		console.log("starting snakeCells:", [[startRow, startCol]])
 		setSnakeCells([[startRow, startCol]]);
 		setFoodCell([foodCoordinate[0], foodCoordinate[1]]);
 		setGrid(dummy);
@@ -160,90 +161,19 @@ const BoardTestCopy = () => {
 		return false;
 	};
 
-	// detects direction and foodCell useState() changes
-	// useEffect(() => {
-	// 	if (snakeCells.length === 0) {
-	// 		console.log("SnakeCells is Empty");
-	// 		return;
-	// 	}
-
-	// 	if (direction === "") {
-	// 		console.log("No Direction Assigned Yet...");
-	// 		return;
-	// 	}
-
-	// 	let prevHead = [...snakeCells[snakeCells.length - 1]];
-	// 	let tail = [...snakeCells];
-	// 	let foodCellArr = [...foodCell];
-	// 	let currSnakeLength = snakeLength
-
-	// 	clearInterval(directionInterval.current);
-	// 	directionInterval.current = setInterval(() => {
-	// 		console.log("prevHead:", prevHead);
-	// 		console.log("Given snakeLength:", snakeLength);
-	// 		// let currSnakeLength = snakeLength
-	// 		let nextHead = [...prevHead];
-
-	// 		console.log("Recreating the Grid...");
-	// 		if (direction === "d") nextHead[1] += 1;
-	// 		if (direction === "s") nextHead[0] += 1;
-	// 		if (direction === "w") nextHead[0] -= 1;
-	// 		if (direction === "a") nextHead[1] -= 1;
-
-	// 		// this doesn't detect eating food
-	// 		// only detects boundaries and eating self
-	// 		if (collision(nextHead, grid)) {
-	// 			setIsGameOver(true);
-	// 			clearInterval(directionInterval.current);
-	// 			return;
-	// 		}
-
-	// 		let newHead = [nextHead[0], nextHead[1]];
-	// 		console.log("newHead:", newHead);
-
-	// 		tail = [[...newHead]];
-	// 		prevHead = [...tail[tail.length - 1]];
-
-	// 		let foodCoordinate = [...foodCellArr];
-	// 		// detect collision with food
-	// 		if (
-	// 			foodCoordinate[0] === newHead[0] &&
-	// 			foodCoordinate[1] === newHead[1]
-	// 		) {
-	// 			console.log("Eaten");
-	// 			// note this only makes sure it doesn't hit the head, if theres a tail, it won't work, it would override each other
-	// 			foodCoordinate = detectRelocation(
-	// 				dummy,
-	// 				newHead[0],
-	// 				newHead[1]
-	// 			);
-	// 			foodCellArr = [...foodCoordinate]
-	// 			console.log("new foodCoordinate:", foodCoordinate);
-	// 			currSnakeLength++
-	// 			console.log("currSnakeLength:", currSnakeLength)
-	// 			setSnakeLength((length) => length + 1);
-	// 			setIsEaten(true)
-	// 			setFoodCell([...foodCoordinate]);
-	// 		}
-
-	// 		console.log("tail:", tail);
-	// 		for (let cell of tail) {
-	// 			dummy[cell[0]][cell[1]] = 1;
-	// 			dummy[foodCellArr[0]][foodCellArr[1]] = 2;
-	// 		}
-	// 		setSnakeCells([[...newHead]]);
-	// 		setGrid(dummy);
-	// 		console.log("Final Dummy:", dummy);
-	// 	}, 500);
-	// }, [direction]);
-
 	useEffect(() => {
 		if (isGameOver || snakeCells.length === 0 || direction === "") {
 			clearInterval(interval.current);
 			return;
 		}
 
-		console.log("snakeCells:", snakeCells);
+		if (snakeLength === gridWidth*gridHeight) {
+			setIsGameOver(true)
+			clearInterval(interval.current);
+			return
+		}
+
+		console.log("given snakeCells:", snakeCells);
 		clearInterval(interval.current);
 		interval.current = setTimeout(() => {
 			let prevHead = [...snakeCells[snakeCells.length - 1]];
@@ -263,8 +193,9 @@ const BoardTestCopy = () => {
 				return;
 			}
 
-			let foodCoordinate = [...foodCell]
-
+			let foodCoordinate = [...foodCell];
+			let snakeTest = [...snakeCells]
+			console.log("snakeTest:", snakeTest)
 			// what happens when it eats a food
 			// note this only makes sure it doesn't hit the head, if theres a tail, it won't work, it would override each other
 			if (nextHead[0] === foodCell[0] && nextHead[1] === foodCell[1]) {
@@ -275,21 +206,35 @@ const BoardTestCopy = () => {
 					nextHead[1]
 				);
 				console.log("new foodCoordinate:", foodCoordinate);
-				// setSnakeLength((length) => length + 1);
+				console.log("snakeLength:", snakeLength+1)
+
+				setSnakeLength((length) => length + 1);
+
+				if (snakeLength+1 === gridWidth*gridHeight) {
+					setIsGameOver(true)
+					return
+				}
+
 				setFoodCell([...foodCoordinate]);
+				console.log("new tail:", [...snakeTest, [...nextHead]])
+				snakeTest = [...snakeTest, [...nextHead]]
+			} else {
+				console.log("snakeLength:", snakeLength)
+				console.log("Current SnakeCells:", snakeCells)
+				snakeTest = [...snakeTest, [...nextHead]]
+				console.log("snakeTest added tail:", snakeTest)
+				snakeTest.shift()
+				console.log("removed tail:", [...snakeTest])
 			}
 
 			let dummy = createMatrix();
-			// only the head shows on the grid, this doesn't account for tails
-			dummy[nextHead[0]][nextHead[1]] = 1;
-			// let the food stay
+
+			for (let cell of snakeTest) {
+				dummy[cell[0]][cell[1]] = 1
+			}
+
 			dummy[foodCoordinate[0]][foodCoordinate[1]] = 2;
-
-			console.log("nextHead:", nextHead);
-
-			// only keeps tracks onto the head for now, need to implement tracking the entire snake
-			setSnakeCells([[...nextHead]]);
-			// setSnakeCells([...snakeCells, [...nextHead]]);
+			setSnakeCells([...snakeTest])
 			setGrid(dummy);
 		}, 500);
 	}, [isGameOver, snakeCells, direction]);
@@ -320,14 +265,12 @@ const BoardTestCopy = () => {
 		clearInterval(interval.current);
 	};
 
-	// console.log("Running...")
-
 	if (isGameOver) return <RestartPopup action={reset} />;
-	// console.log("Current Direction:", direction);
+	console.log("Current Direction:", direction);
 	return (
 		<div className="center">
 			<p>Snake Board</p>
-			<div style={{ width: size, height: size, background: "red" }}>
+			<div style={{ width: pixelWidth, height: pixelHeight, background: "red" }}>
 				{grid.map((row, i) => {
 					return (
 						<div
