@@ -1,7 +1,7 @@
 import "./RestartPopup.css";
 
 const RestartPopup = (props) => {
-	console.log("Activated RestartPopup");
+	// console.log("Activated RestartPopup");
 
 	return (
 		<div className="popup">

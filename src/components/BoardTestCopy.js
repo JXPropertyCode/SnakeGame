@@ -1,10 +1,11 @@
 import { useEffect, useState, useRef } from "react";
 import RestartPopup from "./RestartPopup";
 import WonPopup from './WonPopup'
+import Display from "./Display"
 import "./Board.css";
 
-const gridWidth = 2;
-const gridHeight = 2;
+const gridWidth = 3;
+const gridHeight = 3;
 const createMatrix = () => {
 	let dummy = [];
 	for (let i = 0; i < gridWidth; i++) {
@@ -78,9 +79,9 @@ const BoardTestCopy = () => {
 		dummy[foodCoordinate[0]][foodCoordinate[1]] = 2;
 		// console.log("foodCell:", [foodCoordinate[0], foodCoordinate[1]]);
 
-		console.log("dummy:", dummy);
+		// console.log("dummy:", dummy);
 
-		console.log("starting snakeCells:", [[startRow, startCol]]);
+		// console.log("starting snakeCells:", [[startRow, startCol]]);
 		setSnakeCells([[startRow, startCol]]);
 		setFoodCell([foodCoordinate[0], foodCoordinate[1]]);
 		setGrid(dummy);
@@ -89,36 +90,28 @@ const BoardTestCopy = () => {
 	}, []);
 
 	const onKeyDown = (e) => {
-		// console.log("Key Detected:", e.key);
-
-		if (e.key === "p") {
-			setIsGameOver(true);
-		} else {
-			setDirection(e.key);
+		if (e.key === 'p') {
+			clearInterval(interval.current);
+			return
 		}
+		setDirection(e.key);
 	};
 
 	useEffect(() => {
-		// console.log("useEffect Listening to KeyDown:", !isGameOver);
 		if (!isGameOver && !won) {
-			// console.log("Actively Listening to KeyDowns");
 			window.addEventListener("keydown", onKeyDown);
 		} else {
-			// console.log("NOT Listening to KeyDowns");
 			window.removeEventListener("keydown", onKeyDown);
-			// clearInterval(directionInterval.current);
 			clearInterval(interval.current);
 		}
 
 		return () => {
 			window.removeEventListener("keydown", onKeyDown);
-			// clearInterval(directionInterval.current);
 			clearInterval(interval.current);
 		};
 	}, [isGameOver, won]);
 
 	const collision = (head, grid) => {
-		// console.log("Detecting Collision...");
 		let currRow = head[0];
 		let currCol = head[1];
 
@@ -129,19 +122,18 @@ const BoardTestCopy = () => {
 			currCol < 0 ||
 			currCol >= gridWidth
 		) {
-			console.log("Collision Detected: Boundaries");
+			// console.log("Collision Detected: Boundaries");
 			return true;
 		}
 
 		// eating itself
 		if (grid[currRow][currCol] === 1) {
-			// console.log("collision with self:", grid)
-			console.log("Collision Detected: Self");
+			// console.log("Collision Detected: Self");
 			return true;
 		}
 
 		if (grid[currRow][currCol] === 0) {
-			console.log("No Collision Detected");
+			// console.log("No Collision Detected");
 			return false;
 		}
 
@@ -160,11 +152,11 @@ const BoardTestCopy = () => {
 			return;
 		}
 
-		console.log("given snakeCells:", snakeCells);
+		// console.log("given snakeCells:", snakeCells);
 		clearInterval(interval.current);
 		interval.current = setTimeout(() => {
 			let prevHead = [...snakeCells[snakeCells.length - 1]];
-			console.log("prevHead:", prevHead);
+			// console.log("prevHead:", prevHead);
 			let nextHead = [...prevHead];
 
 			if (direction === "d") nextHead[1] += 1;
@@ -182,14 +174,13 @@ const BoardTestCopy = () => {
 
 			let foodCoordinate = [...foodCell];
 			let snakeTest = [...snakeCells];
-			console.log("snakeTest:", snakeTest);
+			// console.log("snakeTest:", snakeTest);
 			// what happens when it eats a food
 			// note this only makes sure it doesn't hit the head, if theres a tail, it won't work, it would override each other
 			if (nextHead[0] === foodCell[0] && nextHead[1] === foodCell[1]) {
 
-				console.log("Eaten");
-				console.log("new foodCoordinate:", foodCoordinate);
-				console.log("snakeLength:", snakeLength + 1);
+				// console.log("Eaten");
+				// console.log("snakeLength:", snakeLength + 1);
 
 				setSnakeLength((length) => length + 1);
 
@@ -198,22 +189,24 @@ const BoardTestCopy = () => {
 					return;
 				}
 
+				grid[prevHead[0]][prevHead[1]] = 1
 				grid[nextHead[0]][nextHead[1]] = 1
 
-				console.log("new tail:", [...snakeTest, [...nextHead]]);
+				// console.log("new tail:", [...snakeTest, [...nextHead]]);
 				snakeTest = [...snakeTest, [...nextHead]];
 
+				// console.log("Current Grid:", grid)
 				foodCoordinate = detectRelocation(grid);
+				// console.log("new foodCoordinate:", foodCoordinate);
 				setFoodCell([...foodCoordinate]);
 
-
 			} else {
-				console.log("snakeLength:", snakeLength);
-				console.log("Current SnakeCells:", snakeCells);
+				// console.log("Current Grid:", grid)
+
+				// console.log("snakeLength:", snakeLength);
 				snakeTest = [...snakeTest, [...nextHead]];
-				console.log("snakeTest added tail:", snakeTest);
 				snakeTest.shift();
-				console.log("removed tail:", [...snakeTest]);
+				// console.log("new tail:", [...snakeTest]);
 			}
 
 			let dummy = createMatrix();
@@ -229,20 +222,10 @@ const BoardTestCopy = () => {
 	}, [isGameOver, snakeCells, direction]);
 
 	const reset = () => {
-		console.log("Reset the Grid");
-		let dummy = [];
-		for (let i = 0; i < gridHeight; i++) {
-			let row = [];
-			for (let k = 0; k < gridWidth; k++) {
-				row.push(0);
-			}
-			dummy.push(row);
-		}
-		// starting place
+		// console.log("Reset the Grid");
+		let dummy = createMatrix()
 		dummy[startRow][startCol] = 1;
-
 		let foodCoordinate = detectRelocation(dummy, startRow, startCol);
-		console.log("initialization foodCoordinate:", foodCoordinate);
 		dummy[foodCoordinate[0]][foodCoordinate[1]] = 2;
 
 		setSnakeCells([[startRow, startCol]]);
@@ -257,50 +240,7 @@ const BoardTestCopy = () => {
 
 	if (isGameOver) return <RestartPopup action={reset} />;
 	if (won) return <WonPopup action={reset} />;
-	console.log("Current Direction:", direction);
-	console.log("---------------------------")
-	return (
-		<div className="center">
-			<p>Snake Board</p>
-			<div
-				style={{
-					width: size,
-					height: size,
-					background: "red",
-				}}
-			>
-				{grid.map((row, i) => {
-					return (
-						<div
-							key={i + "row"}
-							style={{ display: "flex", flexDirection: "row" }}
-						>
-							{row.map((v, k) => {
-								return (
-									<div
-										key={k + "cell"}
-										style={{
-											width: pixelWidth,
-											height: pixelHeight,
-											background:
-												(grid[i][k] === 0 && "white") ||
-												(grid[i][k] === 2 &&
-													"yellow") ||
-												(grid[i][k] === 1 && "green"),
-
-											borderStyle: "solid",
-											borderWidth: "thin",
-											borderColor: "black",
-										}}
-									></div>
-								);
-							})}
-						</div>
-					);
-				})}
-			</div>
-		</div>
-	);
+	return <Display gridWidth={gridWidth} grid={grid} pixelWidth={pixelWidth} pixelHeight={pixelHeight} size={size}></Display>
 };
 
 export default BoardTestCopy;

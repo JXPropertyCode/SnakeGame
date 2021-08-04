@@ -1,6 +1,7 @@
 // import { useEffect, useState, useRef } from "react";
 // import RestartPopup from "./RestartPopup";
 // import WonPopup from './WonPopup'
+// import Display from "./Display"
 // import "./Board.css";
 
 // const gridWidth = 2;
@@ -89,36 +90,24 @@
 // 	}, []);
 
 // 	const onKeyDown = (e) => {
-// 		// console.log("Key Detected:", e.key);
-
-// 		if (e.key === "p") {
-// 			setIsGameOver(true);
-// 		} else {
-// 			setDirection(e.key);
-// 		}
+// 		setDirection(e.key);
 // 	};
 
 // 	useEffect(() => {
-// 		// console.log("useEffect Listening to KeyDown:", !isGameOver);
-// 		if (!isGameOver) {
-// 			// console.log("Actively Listening to KeyDowns");
+// 		if (!isGameOver && !won) {
 // 			window.addEventListener("keydown", onKeyDown);
 // 		} else {
-// 			// console.log("NOT Listening to KeyDowns");
 // 			window.removeEventListener("keydown", onKeyDown);
-// 			// clearInterval(directionInterval.current);
 // 			clearInterval(interval.current);
 // 		}
 
 // 		return () => {
 // 			window.removeEventListener("keydown", onKeyDown);
-// 			// clearInterval(directionInterval.current);
 // 			clearInterval(interval.current);
 // 		};
-// 	}, [isGameOver]);
+// 	}, [isGameOver, won]);
 
 // 	const collision = (head, grid) => {
-// 		// console.log("Detecting Collision...");
 // 		let currRow = head[0];
 // 		let currCol = head[1];
 
@@ -135,7 +124,6 @@
 
 // 		// eating itself
 // 		if (grid[currRow][currCol] === 1) {
-// 			// console.log("collision with self:", grid)
 // 			console.log("Collision Detected: Self");
 // 			return true;
 // 		}
@@ -164,7 +152,7 @@
 // 		clearInterval(interval.current);
 // 		interval.current = setTimeout(() => {
 // 			let prevHead = [...snakeCells[snakeCells.length - 1]];
-// 			console.log("prevHead:", prevHead);
+// 			// console.log("prevHead:", prevHead);
 // 			let nextHead = [...prevHead];
 
 // 			if (direction === "d") nextHead[1] += 1;
@@ -182,12 +170,10 @@
 
 // 			let foodCoordinate = [...foodCell];
 // 			let snakeTest = [...snakeCells];
-// 			console.log("snakeTest:", snakeTest);
+// 			// console.log("snakeTest:", snakeTest);
 // 			// what happens when it eats a food
 // 			// note this only makes sure it doesn't hit the head, if theres a tail, it won't work, it would override each other
 // 			if (nextHead[0] === foodCell[0] && nextHead[1] === foodCell[1]) {
-
-
 
 // 				console.log("Eaten");
 // 				console.log("new foodCoordinate:", foodCoordinate);
@@ -211,11 +197,11 @@
 
 // 			} else {
 // 				console.log("snakeLength:", snakeLength);
-// 				console.log("Current SnakeCells:", snakeCells);
+// 				// console.log("Current SnakeCells:", snakeCells);
 // 				snakeTest = [...snakeTest, [...nextHead]];
-// 				console.log("snakeTest added tail:", snakeTest);
+// 				// console.log("snakeTest added tail:", snakeTest);
 // 				snakeTest.shift();
-// 				console.log("removed tail:", [...snakeTest]);
+// 				console.log("new tail:", [...snakeTest]);
 // 			}
 
 // 			let dummy = createMatrix();
@@ -232,19 +218,12 @@
 
 // 	const reset = () => {
 // 		console.log("Reset the Grid");
-// 		let dummy = [];
-// 		for (let i = 0; i < gridHeight; i++) {
-// 			let row = [];
-// 			for (let k = 0; k < gridWidth; k++) {
-// 				row.push(0);
-// 			}
-// 			dummy.push(row);
-// 		}
+// 		let dummy = createMatrix()
 // 		// starting place
 // 		dummy[startRow][startCol] = 1;
 
 // 		let foodCoordinate = detectRelocation(dummy, startRow, startCol);
-// 		console.log("initialization foodCoordinate:", foodCoordinate);
+// 		// console.log("initialization foodCoordinate:", foodCoordinate);
 // 		dummy[foodCoordinate[0]][foodCoordinate[1]] = 2;
 
 // 		setSnakeCells([[startRow, startCol]]);
@@ -259,50 +238,8 @@
 
 // 	if (isGameOver) return <RestartPopup action={reset} />;
 // 	if (won) return <WonPopup action={reset} />;
-// 	console.log("Current Direction:", direction);
-// 	console.log("---------------------------")
-// 	return (
-// 		<div className="center">
-// 			<p>Snake Board</p>
-// 			<div
-// 				style={{
-// 					width: size,
-// 					height: size,
-// 					background: "red",
-// 				}}
-// 			>
-// 				{grid.map((row, i) => {
-// 					return (
-// 						<div
-// 							key={i + "row"}
-// 							style={{ display: "flex", flexDirection: "row" }}
-// 						>
-// 							{row.map((v, k) => {
-// 								return (
-// 									<div
-// 										key={k + "cell"}
-// 										style={{
-// 											width: pixelWidth,
-// 											height: pixelHeight,
-// 											background:
-// 												(grid[i][k] === 0 && "white") ||
-// 												(grid[i][k] === 2 &&
-// 													"yellow") ||
-// 												(grid[i][k] === 1 && "green"),
-
-// 											borderStyle: "solid",
-// 											borderWidth: "thin",
-// 											borderColor: "black",
-// 										}}
-// 									></div>
-// 								);
-// 							})}
-// 						</div>
-// 					);
-// 				})}
-// 			</div>
-// 		</div>
-// 	);
+	
+// 	return <Display gridWidth={gridWidth} grid={grid} pixelWidth={pixelWidth} pixelHeight={pixelHeight} size={size}></Display>
 // };
 
 // export default BoardTestCopy;
