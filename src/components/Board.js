@@ -6,10 +6,10 @@ import "./Board.css";
 
 const startRow = 0;
 const startCol = 0;
-const pixelWidth = 10;
-const pixelHeight = 10;
-const gridWidth = 3;
-const gridHeight = 3;
+const pixelWidth = 15;
+const pixelHeight = 15;
+const gridWidth = 10;
+const gridHeight = 10;
 const size = gridWidth * pixelWidth;
 let matrix = []
 
@@ -175,7 +175,7 @@ const BoardTestCopy = () => {
 			}
 			matrix[foodCoordinate[0]][foodCoordinate[1]] = 2;
 			setSnakeCells([...snakeTest]);
-		}, 500);
+		}, 300);
 	}, [isGameOver, snakeCells, direction]);
 
 	const reset = () => {

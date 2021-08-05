@@ -1,7 +1,8 @@
 const Display = (props) => {
     return (
 		<div className="center">
-			<p>Snake Board</p>
+			<h3>Snake Game</h3>
+			<p>Movement: W, S, D, A</p>
 			<div
 				style={{
 					width: props.size,
@@ -16,7 +17,7 @@ const Display = (props) => {
 							style={{ display: "flex", flexDirection: "row" }}
 						>
 							{row.map((v, k) => {
-                                const colors = ['white', 'green', 'yellow']
+                                const colors = ['white', 'green', 'red']
 								return (
 									<div
 										key={k + "cell"}
