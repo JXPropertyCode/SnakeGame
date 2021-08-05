@@ -16,18 +16,14 @@ const Display = (props) => {
 							style={{ display: "flex", flexDirection: "row" }}
 						>
 							{row.map((v, k) => {
+                                const colors = ['white', 'green', 'yellow']
 								return (
 									<div
 										key={k + "cell"}
 										style={{
 											width: props.pixelWidth,
 											height: props.pixelHeight,
-											background:
-												(props.grid[i][k] === 0 && "white") ||
-												(props.grid[i][k] === 2 &&
-													"yellow") ||
-												(props.grid[i][k] === 1 && "green"),
-
+											background: colors[props.grid[i][k]],
 											borderStyle: "solid",
 											borderWidth: "thin",
 											borderColor: "black",

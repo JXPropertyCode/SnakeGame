@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import RestartPopup from "./RestartPopup";
-import WonPopup from './WonPopup'
-import Display from "./Display"
+import WonPopup from "./WonPopup";
+import Display from "./Display";
 import "./Board.css";
 
 const gridWidth = 3;
@@ -18,23 +18,31 @@ const createMatrix = () => {
 	return dummy;
 };
 
+let matrix = createMatrix()
+
+const resetMatrix = (matrix) => {
+	for (let i=0; i<gridWidth; i++) {
+		for (let j=0; j<gridHeight; j++) {
+			matrix[i][j] = 0
+		}
+	}
+	return matrix
+}
+
+
+const startRow = 0;
+const startCol = 0;
+const pixelWidth = 10;
+const pixelHeight = 10;
+const size = gridWidth * pixelWidth;
 const BoardTestCopy = () => {
-	const pixelWidth = 10;
-	const pixelHeight = 10;
-	const size = gridWidth * pixelWidth;
-
 	const [snakeLength, setSnakeLength] = useState(1);
-
-	const startRow = 0;
-	const startCol = 0;
-
 	const [snakeCells, setSnakeCells] = useState([]);
-
 	const [foodCell, setFoodCell] = useState([]);
 	const [isGameOver, setIsGameOver] = useState(false);
 	const [grid, setGrid] = useState([]);
 	const [direction, setDirection] = useState("");
-	const [won, setWon] = useState(false)
+	const [won, setWon] = useState(false);
 
 	const interval = useRef(null);
 
@@ -68,15 +76,24 @@ const BoardTestCopy = () => {
 	// initialization
 	useEffect(() => {
 		// console.log("Initialization");
-		let dummy = createMatrix();
+		// let dummy = createMatrix();
+		// let dummy = matrix
 
 		// start of the snakeHead
-		dummy[startRow][startCol] = 1;
+		// dummy[startRow][startCol] = 1;
 
-		let foodCoordinate = detectRelocation(dummy);
+		matrix[startRow][startCol] = 1;
+		let foodCoordinate = detectRelocation(matrix);
+
+
+
+		// let foodCoordinate = detectRelocation(dummy);
 		// console.log("initialization foodCoordinate:", foodCoordinate);
 
-		dummy[foodCoordinate[0]][foodCoordinate[1]] = 2;
+		matrix[foodCoordinate[0]][foodCoordinate[1]] = 2;
+
+
+		// dummy[foodCoordinate[0]][foodCoordinate[1]] = 2;
 		// console.log("foodCell:", [foodCoordinate[0], foodCoordinate[1]]);
 
 		// console.log("dummy:", dummy);
@@ -84,15 +101,15 @@ const BoardTestCopy = () => {
 		// console.log("starting snakeCells:", [[startRow, startCol]]);
 		setSnakeCells([[startRow, startCol]]);
 		setFoodCell([foodCoordinate[0], foodCoordinate[1]]);
-		setGrid(dummy);
+		// setGrid(dummy);
 
 		return () => clearInterval(interval.current);
 	}, []);
 
 	const onKeyDown = (e) => {
-		if (e.key === 'p') {
+		if (e.key === "p") {
 			clearInterval(interval.current);
-			return
+			return;
 		}
 		setDirection(e.key);
 	};
@@ -166,11 +183,14 @@ const BoardTestCopy = () => {
 
 			// this doesn't detect eating food
 			// only detects boundaries and eating self
-			if (collision(nextHead, grid)) {
+			// if (collision(nextHead, grid)) {
+			if (collision(nextHead, matrix)) {
 				setIsGameOver(true);
 				clearInterval(interval.current);
 				return;
 			}
+
+			// matrix = resetMatrix(matrix)
 
 			let foodCoordinate = [...foodCell];
 			let snakeTest = [...snakeCells];
@@ -178,7 +198,6 @@ const BoardTestCopy = () => {
 			// what happens when it eats a food
 			// note this only makes sure it doesn't hit the head, if theres a tail, it won't work, it would override each other
 			if (nextHead[0] === foodCell[0] && nextHead[1] === foodCell[1]) {
-
 				// console.log("Eaten");
 				// console.log("snakeLength:", snakeLength + 1);
 
@@ -189,17 +208,21 @@ const BoardTestCopy = () => {
 					return;
 				}
 
-				grid[prevHead[0]][prevHead[1]] = 1
-				grid[nextHead[0]][nextHead[1]] = 1
+				// grid[prevHead[0]][prevHead[1]] = 1;
+				// grid[nextHead[0]][nextHead[1]] = 1;
+
+				matrix[prevHead[0]][prevHead[1]] = 1;
+				matrix[nextHead[0]][nextHead[1]] = 1;
 
 				// console.log("new tail:", [...snakeTest, [...nextHead]]);
 				snakeTest = [...snakeTest, [...nextHead]];
 
 				// console.log("Current Grid:", grid)
-				foodCoordinate = detectRelocation(grid);
+				// foodCoordinate = detectRelocation(grid);
+				foodCoordinate = detectRelocation(matrix);
+
 				// console.log("new foodCoordinate:", foodCoordinate);
 				setFoodCell([...foodCoordinate]);
-
 			} else {
 				// console.log("Current Grid:", grid)
 
@@ -209,38 +232,63 @@ const BoardTestCopy = () => {
 				// console.log("new tail:", [...snakeTest]);
 			}
 
-			let dummy = createMatrix();
+			// let dummy = createMatrix();
+			// let dummy = matrix
+			
+
+			// for (let cell of snakeTest) {
+			// 	dummy[cell[0]][cell[1]] = 1;
+			// }
+			matrix = resetMatrix(matrix)
 
 			for (let cell of snakeTest) {
-				dummy[cell[0]][cell[1]] = 1;
+				matrix[cell[0]][cell[1]] = 1;
 			}
+			matrix[foodCoordinate[0]][foodCoordinate[1]] = 2;
 
-			dummy[foodCoordinate[0]][foodCoordinate[1]] = 2;
+
+			// dummy[foodCoordinate[0]][foodCoordinate[1]] = 2;
 			setSnakeCells([...snakeTest]);
-			setGrid(dummy);
+			// setGrid(dummy);
 		}, 500);
 	}, [isGameOver, snakeCells, direction]);
 
 	const reset = () => {
 		// console.log("Reset the Grid");
-		let dummy = createMatrix()
-		dummy[startRow][startCol] = 1;
-		let foodCoordinate = detectRelocation(dummy, startRow, startCol);
-		dummy[foodCoordinate[0]][foodCoordinate[1]] = 2;
+		// let dummy = createMatrix();
+		// dummy[startRow][startCol] = 1;
+		// let foodCoordinate = detectRelocation(dummy, startRow, startCol);
+		// dummy[foodCoordinate[0]][foodCoordinate[1]] = 2;
+
+		matrix = resetMatrix(matrix);
+		matrix[startRow][startCol] = 1;
+		let foodCoordinate = detectRelocation(matrix, startRow, startCol);
+		matrix[foodCoordinate[0]][foodCoordinate[1]] = 2;
 
 		setSnakeCells([[startRow, startCol]]);
 		setFoodCell([foodCoordinate[0], foodCoordinate[1]]);
-		setGrid(dummy);
+		// setGrid([]);
 		setIsGameOver(false);
 		setDirection("");
 		setSnakeLength(1);
 		clearInterval(interval.current);
-		setWon(false)
+		setWon(false);
 	};
 
 	if (isGameOver) return <RestartPopup action={reset} />;
 	if (won) return <WonPopup action={reset} />;
-	return <Display gridWidth={gridWidth} grid={grid} pixelWidth={pixelWidth} pixelHeight={pixelHeight} size={size}></Display>
+	return (
+		<Display
+			gridWidth={gridWidth}
+			// grid={grid}
+
+			grid={matrix}
+
+			pixelWidth={pixelWidth}
+			pixelHeight={pixelHeight}
+			size={size}
+		></Display>
+	);
 };
 
 export default BoardTestCopy;
