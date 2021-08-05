@@ -1,12 +1,9 @@
-import "./RestartPopup.css";
-
-const RestartPopup = (props) => {
-	// console.log("Activated RestartPopup");
-
+import "./WonPopup.css";
+const WonPopup = (props) => {
 	return (
 		<div className="popup">
 			<div className="popup-inner">
-				<h1>You Lost! Want to restart?</h1>
+				<h1>You Won! Want to restart?</h1>
 				<button
 					className="close-btn"
 					onClick={() => {
@@ -20,4 +17,4 @@ const RestartPopup = (props) => {
 	);
 };
 
-export default RestartPopup;
+export default WonPopup;

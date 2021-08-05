@@ -1,207 +1,209 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import RestartPopup from "./RestartPopup";
+import WonPopup from "./WonPopup";
+import Display from "./Display";
 import "./Board.css";
 
-const Board = () => {
-	const startRow = 0;
-	const startCol = 0;
+const startRow = 0;
+const startCol = 0;
+const pixelWidth = 10;
+const pixelHeight = 10;
+const gridWidth = 3;
+const gridHeight = 3;
+const size = gridWidth * pixelWidth;
+let matrix = []
 
-	const gridWidth = 5;
-	const gridHeight = 5;
-	const pixelWidth = 10;
-	const pixelHeight = 10;
-	const size = gridWidth * pixelWidth;
-	const [grid, setGrid] = useState([]);
+// Function to generate random number for foodCell
+const randomNumber = (min, max) => {
+	return Math.floor(Math.random() * (max - min + 1)) + min;
+};
 
-	// starting place
-	const [snakeCells, setSnakeCells] = useState([[startRow, startCol]]);
-	const [isOutOfBound, setIsOutOfBound] = useState(false);
+// detect for avaiable spaces
+const avaiableSpace = (matrix, possibleRow, possibleCol) => {
+	if (matrix[possibleRow][possibleCol] === 1) {
+		return false;
+	}
+	return true;
+};
 
-	const [isRestart, setIsRestart] = useState(false);
+const detectRelocation = (matrix) => {
+	let randomRow = randomNumber(0, gridWidth - 1);
+	let randomCol = randomNumber(0, gridHeight - 1);
+	while (avaiableSpace(matrix, randomRow, randomCol) === false) {
+		randomRow = randomNumber(0, gridWidth - 1);
+		randomCol = randomNumber(0, gridHeight - 1);
+	}
+	return [randomRow, randomCol];
+};
 
-	// create the initial grid. Only runs when the program first starts
-	useEffect(() => {
-		console.log("useEffect activated");
-		console.log("Initializing Grid");
-		let dummy = [];
-		for (let i = 0; i < gridWidth; i++) {
-			let row = [];
-			for (let k = 0; k < gridHeight; k++) {
-				row.push(0);
-			}
-			dummy.push(row);
+const createMatrix = () => {
+	let dummy = [];
+	for (let i = 0; i < gridWidth; i++) {
+		let row = [];
+		for (let k = 0; k < gridHeight; k++) {
+			row.push(0);
 		}
-		const snakeHead = snakeCells[0];
-		// starting place
-		dummy[snakeHead[0]][snakeHead[1]] = 1;
-		setGrid(dummy);
+		dummy.push(row);
+	}
+	dummy[startRow][startCol] = 1;
+	return dummy;
+};
+
+const resetMatrix = (matrix) => {
+	for (let i=0; i<gridWidth; i++) {
+		for (let j=0; j<gridHeight; j++) {
+			matrix[i][j] = 0
+		}
+	}
+	return matrix
+}
+
+const collision = (head, grid) => {
+	let currRow = head[0];
+	let currCol = head[1];
+
+    // out of bounds
+	if (
+		currRow < 0 ||
+		currRow >= gridHeight ||
+		currCol < 0 ||
+		currCol >= gridWidth
+	) {
+		return true;
+	}
+
+	// eating itself
+	if (grid[currRow][currCol] === 1) {
+		return true;
+	}
+
+	if (grid[currRow][currCol] === 0) {
+		return false;
+	}
+
+	return false;
+};
+
+const BoardTestCopy = () => {
+	const [snakeLength, setSnakeLength] = useState(1);
+	const [snakeCells, setSnakeCells] = useState([]);
+	const [foodCell, setFoodCell] = useState([]);
+	const [isGameOver, setIsGameOver] = useState(false);
+	const [direction, setDirection] = useState("");
+	const [won, setWon] = useState(false);
+	const interval = useRef(null);
+
+	// initialization
+	useEffect(() => {
+		matrix = createMatrix()
+		let foodCoordinate = detectRelocation(matrix);
+		matrix[foodCoordinate[0]][foodCoordinate[1]] = 2;
+		setSnakeCells([[startRow, startCol]]);
+		setFoodCell([foodCoordinate[0], foodCoordinate[1]]);
+		return () => clearInterval(interval.current);
 	}, []);
 
-	// to assign actions to keyboard input
 	const onKeyDown = (e) => {
-		if (e.key === "d") {
-			console.log(e.key);
-			setSnakeCells((cells) => {
-				let head = [...cells[cells.length - 1]];
-
-				// detects out of bounds for the right side of the board
-				if (head[1] >= gridWidth - 1) {
-					console.log("head[1] >= gridWidth-1");
-					setIsOutOfBound(true);
-					setIsRestart(true);
-
-					return [...cells];
-				} else {
-					head[1] += 1;
-					console.log("head:", head);
-					return [...cells, head];
-				}
-			});
+		if (e.key === "p") {
+			clearInterval(interval.current);
+			return;
 		}
-
-		if (e.key === "s") {
-			console.log(e.key);
-			setSnakeCells((cells) => {
-				let head = [...cells[cells.length - 1]];
-
-				// detects out of bounds for the right side of the board
-				if (head[0] >= gridWidth - 1) {
-					console.log("head[0] >= gridWidth - 1");
-					setIsOutOfBound(true);
-					setIsRestart(true);
-					return [...cells];
-				} else {
-					head[0] += 1;
-					console.log("head:", head);
-					return [...cells, head];
-				}
-			});
-		}
-
-		if (e.key === "w") {
-			console.log(e.key);
-			setSnakeCells((cells) => {
-				let head = [...cells[cells.length - 1]];
-
-				// detects out of bounds for the right side of the board
-				if (head[0] <= 0) {
-					console.log("head[0] <= 0");
-					setIsOutOfBound(true);
-					setIsRestart(true);
-					return [...cells];
-				} else {
-					head[0] -= 1;
-					console.log("head:", head);
-					return [...cells, head];
-				}
-			});
-		}
-
-		if (e.key === "a") {
-			console.log(e.key);
-			setSnakeCells((cells) => {
-				let head = [...cells[cells.length - 1]];
-
-				// detects out of bounds for the right side of the board
-				if (head[1] <= 0) {
-					console.log("head[1] <= 0");
-					setIsOutOfBound(true);
-					setIsRestart(true);
-					return [...cells];
-				} else {
-					head[1] -= 1;
-					console.log("head:", head);
-					return [...cells, head];
-				}
-			});
-		}
+		setDirection(e.key);
 	};
 
-	// to track keyboard input, if the window pops up, it would ignore it
-	// not sure if adding the dependency would affect other parts of the code
 	useEffect(() => {
-		console.log("useEffect activated");
-		console.log("Listening to KeyDown:", !isOutOfBound);
-		if (!isOutOfBound) {
+		if (!isGameOver && !won) {
 			window.addEventListener("keydown", onKeyDown);
 		} else {
 			window.removeEventListener("keydown", onKeyDown);
+			clearInterval(interval.current);
 		}
 
 		return () => {
 			window.removeEventListener("keydown", onKeyDown);
+			clearInterval(interval.current);
 		};
-	}, [isOutOfBound]);
+	}, [isGameOver, won]);
 
-	// detects the changes of snakecells
 	useEffect(() => {
-		console.log("useEffect activated");
-		if (isOutOfBound === false) {
-			console.log("Able to keep moving");
-			setGrid((grid) => {
-				console.log("snakeCells:", snakeCells);
-				for (let snakeCell of snakeCells) {
-					grid[snakeCell[0]][snakeCell[1]] = 1;
-				}
-				console.log("grid:", grid);
-				return [...grid];
-			});
+		if (isGameOver || snakeCells.length === 0 || direction === "") {
+			clearInterval(interval.current);
+			return;
 		}
 
-		// reset the grid
-		if (isRestart === true) {
-			console.log("Out of Bounds... Restarting the Grid");
-			setGrid((grid) => {
-				console.log("snakeCells:", snakeCells);
-				for (let snakeCell of snakeCells) {
-					grid[snakeCell[0]][snakeCell[1]] = 0;
+		clearInterval(interval.current);
+		interval.current = setTimeout(() => {
+			let prevHead = [...snakeCells[snakeCells.length - 1]];
+			let nextHead = [...prevHead];
+
+			if (direction === "d") nextHead[1] += 1;
+			if (direction === "s") nextHead[0] += 1;
+			if (direction === "w") nextHead[0] -= 1;
+			if (direction === "a") nextHead[1] -= 1;
+
+			// only detects boundaries and eating self
+			if (collision(nextHead, matrix)) {
+				setIsGameOver(true);
+				clearInterval(interval.current);
+				return;
+			}
+
+			let foodCoordinate = [...foodCell];
+			let snakeTest = [...snakeCells];
+
+			if (nextHead[0] === foodCell[0] && nextHead[1] === foodCell[1]) {
+				setSnakeLength((length) => length + 1);
+				if (snakeLength + 1 === gridWidth * gridHeight) {
+					setWon(true);
+					return;
 				}
-				console.log("grid:", grid);
 
-				grid[startRow][startCol] = 1;
-				setSnakeCells([[startRow, startCol]]);
+				matrix[prevHead[0]][prevHead[1]] = 1;
+				matrix[nextHead[0]][nextHead[1]] = 1;
+				snakeTest = [...snakeTest, [...nextHead]];
+				foodCoordinate = detectRelocation(matrix);
+				setFoodCell([...foodCoordinate]);
+			} else {
+				snakeTest = [...snakeTest, [...nextHead]];
+				snakeTest.shift();
+			}
 
-				return [...grid];
-			});
-			setIsRestart(false);
-		}
-	}, [snakeCells]);
+			matrix = resetMatrix(matrix)
 
-	if (isOutOfBound) return <RestartPopup setIsOutOfBound={setIsOutOfBound} />;
+			for (let cell of snakeTest) {
+				matrix[cell[0]][cell[1]] = 1;
+			}
+			matrix[foodCoordinate[0]][foodCoordinate[1]] = 2;
+			setSnakeCells([...snakeTest]);
+		}, 500);
+	}, [isGameOver, snakeCells, direction]);
+
+	const reset = () => {
+		matrix = resetMatrix(matrix);
+		matrix[startRow][startCol] = 1;
+		let foodCoordinate = detectRelocation(matrix, startRow, startCol);
+		matrix[foodCoordinate[0]][foodCoordinate[1]] = 2;
+
+		setSnakeCells([[startRow, startCol]]);
+		setFoodCell([foodCoordinate[0], foodCoordinate[1]]);
+		setIsGameOver(false);
+		setDirection("");
+		setSnakeLength(1);
+		clearInterval(interval.current);
+		setWon(false);
+	};
+
+	if (isGameOver) return <RestartPopup action={reset} />;
+	if (won) return <WonPopup action={reset} />;
 	return (
-		<div className="center">
-			<p>Snake Board</p>
-			<div style={{ width: size, height: size, background: "red" }}>
-				{grid.map((row, i) => {
-					return (
-						<div
-							key={i + "row"}
-							style={{ display: "flex", flexDirection: "row" }}
-						>
-							{row.map((v, k) => {
-								return (
-									<div
-										key={k + "cell"}
-										style={{
-											width: pixelWidth,
-											height: pixelHeight,
-											background:
-												grid[i][k] === 0
-													? "white"
-													: "green",
-											borderStyle: "solid",
-											borderWidth: "thin",
-											borderColor: "black",
-										}}
-									></div>
-								);
-							})}
-						</div>
-					);
-				})}
-			</div>
-		</div>
+		<Display
+			gridWidth={gridWidth}
+			grid={matrix}
+			pixelWidth={pixelWidth}
+			pixelHeight={pixelHeight}
+			size={size}
+		></Display>
 	);
 };
 
-export default Board;
+export default BoardTestCopy;
